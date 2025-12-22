@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "express-mysql-session": "^3.0.3"
-  }
-}
