@@ -6,7 +6,7 @@ const genre = express.Router();
 genre.use("/uploads", express.static("./Files/GenreCover"));
 
 
-// Multer setup
+// Multer setup asdasd
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './Files/GenreCover/');
