@@ -8,6 +8,7 @@ import { sessionStore } from './data/database.js';
 
 // Routes
 import user from './routes/user.js';
+import genre from './routes/genre.js';
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use(session({
 
 // Initializing the routes
 app.use('/user', user);
+app.use('/genre', genre);
 
 app.get('/', (req, res) => {
     res.send("Expressing....");

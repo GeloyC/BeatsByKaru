@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import MySQLStore from 'express-mysql-session';
+import mysqlSession from 'express-mysql-session';
 import session from 'express-session';
 import dotenv from 'dotenv';
 
@@ -20,8 +20,8 @@ export const pool = mysql.createPool({
 })
 
 
-const MySQLSessionStore = MySQLStore(session);
-export const sessionStore = new MySQLSessionStore(
+const MySQLStore = mysqlSession(session);
+export const sessionStore = new MySQLStore(
     {
         clearExpired: true,
         checkExpirationInterval: 900000, // 15 Minutes
