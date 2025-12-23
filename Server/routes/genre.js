@@ -1,18 +1,21 @@
 import express from 'express';
 import multer from 'multer';
 import { pool } from '../data/database.js';
+import { requireAdmin } from './user.js';
+
+
+
 
 const genre = express.Router();
-genre.use("/uploads", express.static("./Files/GenreCover"));
 
 
 // Multer setup asdasd
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './Files/GenreCover/');
+        cb(null, 'Files/GenreCover');
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() + 1e9);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const extension = file.originalname.split('.').pop();
     cb(null, `${uniqueSuffix}.${extension}`);
     }
@@ -22,7 +25,7 @@ const upload = multer({ storage })
 
 
 
-genre.post('/new', upload.single('cover_art'), async (req, res) => {
+genre.post('/new', requireAdmin, upload.single('cover_art'), async (req, res) => {
     try {
         const { name } = req.body;
 
@@ -46,5 +49,18 @@ genre.post('/new', upload.single('cover_art'), async (req, res) => {
     }
 });
 
+
+genre.get('/all', async (req, res) => {
+    try {
+        const [row] = await pool.query(
+            'SELECT * FROM genres'
+        );
+
+        return res.status(200).json(row)
+
+    } catch(err) {
+        console.error('Error fetching genres data: ', err);
+    }
+});
 
 export default genre;

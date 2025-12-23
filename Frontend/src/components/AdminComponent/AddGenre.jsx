@@ -1,15 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 
 const AddGenre = ({ closeAddGenreWindow }) => {
     const base_url = `http://localhost:5000`;
+    const queryClient = useQueryClient();
 
 
     const [genreName, setGenreName] = useState('');
     const [imagePreview, setImagePreview] = useState('');
-
     const [imageBlob, setImageBlob] = useState(null);
+    const [sucessMessage, setSuccessMessage] = useState('');
     
     const handleImagePreivew = (e) => {
         const file = e.target.files[0];
@@ -65,12 +66,20 @@ const AddGenre = ({ closeAddGenreWindow }) => {
         onSuccess: (data) => {
             setGenreName('');
             setImagePreview('');
+            setSuccessMessage('New Genre created successfully!');
             console.log("File URL:", data.cover_art_url);
+
+            queryClient.invalidateQueries(['genre']);
         }, 
         onError: (err) => {
             console.log('Error uploading file ', err);
         }
     });
+
+
+    
+
+
 
     return (
         <div className='flex flex-col items-start justify-start w-[800px] overflow-x-hidden overflow-y-scroll scrollbar-thin p-5 border-l border-l-[#DDD] gap-5'>
@@ -104,12 +113,17 @@ const AddGenre = ({ closeAddGenreWindow }) => {
 
                         </div>
                     </div>
+
+                    {sucessMessage && ( <span className='flex w-full justify-center text-[#007F80] font-bold'>{sucessMessage}</span> )}
+                    
                 </div>
 
-                <div className='flex w-full items-center justify-end gap-1'>
-                    <button className='bg-[#03f8c5] text-[#005F60] px-3 py-1 rounded-[5px] active:bg-[#007F80] cursor-pointer'>Save</button>
-                    <button onClick={resetGenre} className='bg-[#EEE] px-2 py-1 rounded-[5px] cursor-pointer active:bg-[#CCC]'>Cancel</button>
-                </div>
+                {!sucessMessage && (
+                    <div className='flex w-full items-center justify-end gap-1'>
+                        <button className='bg-[#03f8c5] text-[#005F60] px-3 py-1 rounded-[5px] active:bg-[#007F80] cursor-pointer'>Save</button>
+                        <button onClick={resetGenre} className='bg-[#EEE] px-2 py-1 rounded-[5px] cursor-pointer active:bg-[#CCC]'>Cancel</button>
+                    </div>
+                )}
             </form>
         </div>
     )

@@ -3,6 +3,9 @@ import session from 'express-session';
 import dotenv from 'dotenv';
 import cors from 'cors'
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import { testConnection } from './data/database.js';
 import { sessionStore } from './data/database.js';
 
@@ -15,6 +18,13 @@ dotenv.config();
 
 
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url); 
+const __dirname = path.dirname(__filename);
+
+app.use('/uploads', express.static(path.join(__dirname, 'Files/GenreCover')));
+
+
 const PORT = 5000;
 
 app.use(express.json());
