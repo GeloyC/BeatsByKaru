@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,6 +9,8 @@ const TopNav = () => {
     const base_url = 'http://localhost:5000';
     const [isLogoutOpen, setIsLogoutOpen] = useState(false);
     const navigate = useNavigate();
+
+    const queryClient = useQueryClient();
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['user'],
@@ -35,6 +37,7 @@ const TopNav = () => {
                 return response.data;
         },
         onSuccess: () => {
+            queryClient.setQueryData(['user'], null)
             navigate('/admin');
         }, 
         onError: (err) => {

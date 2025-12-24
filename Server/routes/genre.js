@@ -28,6 +28,7 @@ const upload = multer({ storage })
 genre.post('/new', requireAdmin, upload.single('cover_art'), async (req, res) => {
     try {
         const { name } = req.body;
+        if (!name) return;
 
         const cover_art_url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 

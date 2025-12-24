@@ -1,5 +1,8 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
+
+import { useUser } from './components/AdminComponent/userContext.jsx'
 
 import Music from './pages/Client/Music.jsx'
 import Projects from './pages/Client/Projects.jsx'
@@ -11,6 +14,9 @@ import Create from './pages/Admin/Create.jsx'
 import Login from './pages/Admin/Login.jsx'
 
 function App() {
+  
+  const { user, isLoading } = useUser();
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <Routes>
@@ -20,10 +26,16 @@ function App() {
         <Route path="projects" element={ <Projects /> }/>
 
 
-        <Route path='admin' element={<Login />} />
-        <Route path='dashboard' element={<Dashboard />} />
-        <Route path='manage' element={<Manage />} />
-        <Route path='create' element={<Create />} />
+          <Route path='admin' element={
+            user ? <Navigate to='/dashboard'/> : <Login />
+          } />
+
+          <Route path='dashboard' element={
+            user ? <Dashboard /> : <Navigate to='/admin'/>
+          } />
+
+          <Route path='manage' element={<Manage />} />
+          <Route path='create' element={<Create />} />
     </Routes>
   )
 }

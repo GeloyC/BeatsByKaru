@@ -1,7 +1,28 @@
 import React from 'react'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
 import { Link } from 'react-router-dom'
 
 const HeaderGenres = () => {
+    const base_url = `http://localhost:5000`;
+
+    const { data: genres = [], isLoading} = useQuery({
+        queryKey: ['genre'],
+        queryFn: async () => {
+            try {
+                const response = await axios.get(`${base_url}/genre/all`, {
+                    withCredentials: true
+                });
+
+                console.log(response.data)
+
+                return response.data;
+            } catch (err) {
+                console.error('Error retreiving genre data: ', err);
+            }
+        }
+    });
+
     return (
         <div className='flex flex-col w-full bg-[#141414] gap-10'>
             <div className='flex flex-col py-10 px-[8rem]'>
@@ -22,14 +43,28 @@ const HeaderGenres = () => {
             {/* 
                 TODO: Scale image inside every genre box when hovered
             */}
-            <div className='flex items-center justify-start px-[8rem] w-full'>
+            <div className='flex items-center justify-start px-[8rem] w-full gap-2'>
 
-                <div className='grid grid-cols-6 w-[1500px] h-[225px] gap-1'>
+                <div className='grid grid-cols-6 w-[1500px] h-[225px] gap-2'>
 
-                        <Link className='relative flex bg-[#007F80] cursor-pointer overflow-hidden text-[24px] rounded-[5px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100'>
+                        {/* <Link className='relative flex bg-[#007F80] cursor-pointer overflow-hidden text-[24px] rounded-[5px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100'>
                             <span className='absolute top-3 left-5  font-bold'>Genre</span>
-                        </Link>
-
+                        </Link> */}
+                    {isLoading ? (
+                        <div className='flex items-center justify-center bg-[#DDD]'>
+                            
+                        </div>
+                    ) : (
+                        genres.map((genre) => (
+                            <div key={genre.id} className={`relative flex items-center justify-center rounded-[10px] overflow-hidden text-[24px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100`}>
+                                {/* Cover art is displayed here */}
+                                <div className={`absolute inset-0 bg-cover bg-center`} 
+                                    style={{backgroundImage: `url(${genre.cover_art_url})`}}
+                                />
+                                <div className="absolute inset-0 bg-black/40" />
+                                <span className='absolute top-2 left-3 font-bold'>{genre.name}</span>
+                            </div>
+                    )))}
                 </div>
             </div>
 

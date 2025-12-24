@@ -11,6 +11,7 @@ const AddGenre = ({ closeAddGenreWindow }) => {
     const [imagePreview, setImagePreview] = useState('');
     const [imageBlob, setImageBlob] = useState(null);
     const [sucessMessage, setSuccessMessage] = useState('');
+    const [error, setError] = useState('');
     
     const handleImagePreivew = (e) => {
         const file = e.target.files[0];
@@ -22,14 +23,20 @@ const AddGenre = ({ closeAddGenreWindow }) => {
         
         reader.readAsDataURL(file);
 
+
         setImageBlob(file);
     }
 
 
     const handleSubmit = (e) => {
-        e.preventDefault();
 
+        if (!imageBlob || genreName === '') {
+            setError("Please complete all the fields' requirement! -- blob name");
+            return;
+        }
+        
         const imageForm = new FormData(e.target)
+
         imageForm.append('name', genreName);
         imageForm.append('cover_art', imageBlob);
 
@@ -37,10 +44,8 @@ const AddGenre = ({ closeAddGenreWindow }) => {
         console.log('File: ', imageBlob);
 
         createGenre.mutate(imageForm);    
+
     }
-
-
-    
 
     const resetGenre = () => {
         setGenreName('');
@@ -69,6 +74,7 @@ const AddGenre = ({ closeAddGenreWindow }) => {
             setSuccessMessage('New Genre created successfully!');
             console.log("File URL:", data.cover_art_url);
 
+            // Immediate trigger the queryKey to display changes 
             queryClient.invalidateQueries(['genre']);
         }, 
         onError: (err) => {
@@ -92,29 +98,44 @@ const AddGenre = ({ closeAddGenreWindow }) => {
                 <div className='flex flex-col w-full gap-5'>
                     <div className='flex items-center w-full gap-2'>
                         <span>Genre</span>
-                        <input type="text" placeholder='Name of Genre' value={genreName || ''} onChange={(e) => setGenreName(e.target.value)}
+                        <input type="text" placeholder='Name of Genre' value={genreName} onChange={(e) => (
+                            setGenreName(e.target.value),
+                            setError('')
+                        )}
                         className='bg-[#EEE] border border-[#BBB] p-1 px-2 rounded-[5px] w-full focus:border-[#2A2A2A] focus:outline-none'/>
                     </div>
 
                     <div className='flex flex-col w-full'>
                         <span>Cover Photo</span>
-                        <div className='flex items-center justify-center w-full border-dashed border-2 border-[#BBB] p-2 rounded-[5px]'>
+                        <div className={`relative flex items-center justify-center w-full border-dashed border-2 border-[#BBB]  rounded-[5px] ${imagePreview && 'p-2'}`}>
+                            
+
                             {!imagePreview ? (
-                                <label htmlFor="genreCover" className='font-bold cursor-pointer'>
+                                <label htmlFor="genreCover" className='flex items-center justify-center w-full h-full font-bold cursor-pointer p-4 hover:bg-[#EEE] active:bg-[#FFF]'>
                                     Upload
-                                    <input onChange={handleImagePreivew} type="file" id="genreCover" accept='image/jpeg, image/png' hidden/>
+                                    <input onChange={ handleImagePreivew } type="file" id="genreCover" accept='image/jpeg, image/png' hidden />
                                 </label>
 
                             ) : (
-                                <div className=''>
-                                    <img src={imagePreview} alt="" />
-                                </div>
+                                <>
+                                    <button onClick={() => setImagePreview('')} type='button' className='absolute top-3 right-3 size-7 p-2 rounded-full hover:bg-[#DDD] active:bg-[#FFF]'>
+                                        <img src="/src/assets/icons/clear_black.png" alt="" />
+                                    </button>
+                                    <div className='flex items-center justify-center w-[300px] h-[300px] rounded-[10px] overflow-hidden'>
+
+                                        <img src={imagePreview} alt="" className='object-cover w-full h-full'/>
+                                    </div>
+                                </>
                             )}
 
                         </div>
                     </div>
 
                     {sucessMessage && ( <span className='flex w-full justify-center text-[#007F80] font-bold'>{sucessMessage}</span> )}
+
+                    {error && (
+                        <span className='flex w-full justify-center text-[#FF0000]'>{error}</span>
+                    )}
                     
                 </div>
 

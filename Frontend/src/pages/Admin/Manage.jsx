@@ -7,10 +7,10 @@ import SideNav from '../../components/AdminComponent/SideNav'
 import AddGenre from '../../components/AdminComponent/AddGenre';
 
 const Manage = () => {
+  const base_url = `http://localhost:5000`;
   const [genreMenuShow, setGenreMenuShow] = useState(false);
   const [isGenreWindowClosed, setIsGenreWidnowClosed] = useState(false);
-  const base_url = `http://localhost:5000`;
-
+  const [isGenreHovered, setIsGenreHovered] = useState(false);
 
 
   const handleCloseAddGenreWindow = () => {
@@ -34,6 +34,11 @@ const Manage = () => {
           }
       }
   });
+
+  const hoverGenreMenu = (genre_id) => {
+    setIsGenreHovered(prev => (prev === genre_id ? null : genre_id))
+  }
+
 
   return (
     <div className='relative flex flex-col w-full h-screen bg-[#FFF]'>
@@ -59,10 +64,18 @@ const Manage = () => {
                   <div className='flex flex-wrap gap-1 w-full'>
                     {/* Genre block */}
                     {genres.map((genre) => (
-                      <div key={genre.id} onMouseEnter={() => setGenreMenuShow(true)} onMouseLeave={() => setGenreMenuShow(false)} className='relative flex items-center justify-center w-[200px] h-[200px] bg-[#DDD] rounded-[5px]'>
-                        <span className='absolute top-2 left-3 text-[20px] text-[#2A2A2A] font-bold'>{genre.name}</span>
+                      <div key={genre.id} onMouseEnter={() => hoverGenreMenu(genre.id)} onMouseLeave={() => hoverGenreMenu(null)} className={`relative flex items-center justify-center w-[200px] h-[200px] bg-[#DDD] rounded-[5px] overflow-hidden bg-cover bg-center`}>
+
+                        {/* Cover art is displayed here */}
+                        <div className={`absolute inset-0 bg-cover bg-center`} 
+                          style={{backgroundImage: `url(${genre.cover_art_url})`}}
+                        />
+
+                        <div className="absolute inset-0 bg-black/40" />
+
+                        <span className='absolute top-2 left-3 text-[20px] text-[#FFF] font-bold'>{genre.name}</span>
                         
-                        {genreMenuShow && (
+                        {isGenreHovered === genre.id && (
                           <div className='absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center gap-2 p-2 rounded-[15px] border-[#BABABA] border-2 border-dashed justify-center bg-[#FFF]'>
                             <button className='size-6 p-1 hover:bg-[#CCC] rounded-full'>
                               <img src="/src/assets/icons/edit-black.png" alt="edit-icon"/>
@@ -73,7 +86,7 @@ const Manage = () => {
                           </div>
                         )}
 
-                        <img src={genre.cover_art_url} alt="" className='bg-cover w-full h-full'/>
+                        
                       </div>
                     ))}
                   </div>

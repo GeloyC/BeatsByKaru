@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
+  const queryClient = useQueryClient();
   const base_url = `http://localhost:5000`;
   const navigate = useNavigate();
 
@@ -24,6 +26,7 @@ const Login = () => {
         withCredentials: true
       });
 
+      await queryClient.invalidateQueries(['user']);
       navigate('/dashboard');
     } catch(err) {
       console.error('Failed to login, something went wrong: ', err);
