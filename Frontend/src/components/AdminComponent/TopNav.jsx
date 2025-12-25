@@ -46,7 +46,7 @@ const TopNav = () => {
     });
 
     return (
-        <div className='sticky top-0 flex items-center justify-between w-full bg-[#FFF] px-4 py-2 border-b border-b-[#DDDDDD] z-20'>
+        <div className='sticky top-0 flex items-center justify-between w-full bg-[#FFF] px-4 py-2 border-b border-b-[#DDDDDD] z-10'>
             <div className='flex items-center justify-center font-bold'>
                 Beats by Karu [ADMIN]
             </div>

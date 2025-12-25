@@ -1,16 +1,22 @@
 import React, { useState } from 'react'
-import { useQuery } from '@tanstack/react-query';
+import { Link, Outlet } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
 import AddGenre from '../../components/AdminComponent/AddGenre';
+import EditGenre from '../../components/AdminComponent/EditGenre';
 
 const Manage = () => {
   const base_url = `http://localhost:5000`;
-  const [genreMenuShow, setGenreMenuShow] = useState(false);
+  const queryClient = useQueryClient();
+
+  const [successMessage, setSuccessMessage] = useState('');
   const [isGenreWindowClosed, setIsGenreWidnowClosed] = useState(false);
   const [isGenreHovered, setIsGenreHovered] = useState(false);
+
+  const [genreId, setGenreId] = useState('');
 
 
   const handleCloseAddGenreWindow = () => {
@@ -40,6 +46,30 @@ const Manage = () => {
   }
 
 
+  const { mutate: deleteGenre } = useMutation({
+    mutationFn: async (genre_id) => {
+      const response = await axios.delete(`${base_url}/genre/remove/${genre_id}`, {
+        withCredentials: true
+      });
+
+      console.log('Deleted: ', response.data);
+    },
+    onSuccess: () => {
+      alert('Delete sucess');
+      queryClient.invalidateQueries(['genre']);
+    }, 
+    onError: (err) => {
+      console.error('Error removing genre: ', err);
+    }
+  });
+
+
+  const handleEditGenre = (genre_id) => {
+    setGenreId(genre_id);
+    console.log('The genrenetics: ', genre_id);
+  }
+
+
   return (
     <div className='relative flex flex-col w-full h-screen bg-[#FFF]'>
         <TopNav />
@@ -47,7 +77,7 @@ const Manage = () => {
         <div className='relative grid grid-cols-[15%_85%] h-full w-full'>
             <SideNav />
 
-            <div className='flex w-full h-full bg-[#FFF]'>
+            <div className='relative flex w-full h-full bg-[#FFF]'>
 
               {/* CONTENTS HERE */}
               <div className='flex flex-col w-full p-5 gap-5'>
@@ -77,10 +107,10 @@ const Manage = () => {
                         
                         {isGenreHovered === genre.id && (
                           <div className='absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center gap-2 p-2 rounded-[15px] border-[#BABABA] border-2 border-dashed justify-center bg-[#FFF]'>
-                            <button className='size-6 p-1 hover:bg-[#CCC] rounded-full'>
+                            <button onClick={() => handleEditGenre(genre.id)} className='size-6 p-1 hover:bg-[#CCC] active:bg-[#FFF] rounded-full'>
                               <img src="/src/assets/icons/edit-black.png" alt="edit-icon"/>
                             </button>
-                            <button className='size-6 p-1.5 hover:bg-[#CCC] rounded-full'>
+                            <button onClick={() => deleteGenre(genre.id)} className='size-6 p-1.5 hover:bg-[#CCC] active:bg-[#FFF] rounded-full'>
                               <img src="/src/assets/icons/clear_black.png" alt="clear-icon" />
                             </button>
                           </div>
@@ -97,6 +127,8 @@ const Manage = () => {
               {isGenreWindowClosed && (
                 <AddGenre closeAddGenreWindow={handleCloseAddGenreWindow}/>
               )}
+
+              {genreId && ( <EditGenre genre_id={genreId} onClose={() => setGenreId('')}/> )}
             </div>
         </div>
 

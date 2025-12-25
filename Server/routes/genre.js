@@ -2,7 +2,8 @@ import express from 'express';
 import multer from 'multer';
 import { pool } from '../data/database.js';
 import { requireAdmin } from './user.js';
-
+import fs from 'fs/promises'
+import path from 'path';
 
 
 
@@ -61,6 +62,43 @@ genre.get('/all', async (req, res) => {
 
     } catch(err) {
         console.error('Error fetching genres data: ', err);
+    }
+});
+
+
+const uploads_dir = path.join(process.cwd(), 'Files/GenreCover');
+
+genre.delete('/remove/:id', requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [row] = await pool.query(
+            'SELECT cover_art_url FROM genres WHERE id = ?',
+            [id]
+        );
+
+        const image_url = row[0].cover_art_url;
+
+        if (image_url) {
+            const filename = path.basename(image_url);
+            const file_path = path.join(uploads_dir, filename);
+
+            try {
+                await fs.unlink(file_path);
+                console.log('Deleted: ', image_path);
+            } catch (err) {
+                console.error('Failed to delete: ', err);
+            }
+        }
+
+        await pool.query('DELETE FROM genres WHERE id = ?', [id]);
+
+        return res.status(200).json({
+            message: 'Genre id ' + id + ' has been successfully deleted!',
+        })
+
+    } catch(err) {
+        console.error('Failed to delete genre: ', err);
     }
 });
 

@@ -12,6 +12,7 @@ import Dashboard from './pages/Admin/Dashboard.jsx'
 import Manage from './pages/Admin/Manage.jsx'
 import Create from './pages/Admin/Create.jsx'
 import Login from './pages/Admin/Login.jsx'
+import EditGenre from './components/AdminComponent/EditGenre.jsx'
 
 function App() {
   
@@ -35,6 +36,7 @@ function App() {
           } />
 
           <Route path='manage' element={<Manage />} />
+
           <Route path='create' element={<Create />} />
     </Routes>
   )

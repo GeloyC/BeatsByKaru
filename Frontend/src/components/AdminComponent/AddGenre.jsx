@@ -29,9 +29,10 @@ const AddGenre = ({ closeAddGenreWindow }) => {
 
 
     const handleSubmit = (e) => {
+        e.preventDefault();
 
         if (!imageBlob || genreName === '') {
-            setError("Please complete all the fields' requirement! -- blob name");
+            setError("Please provide both genre name and an image for it.");
             return;
         }
         
