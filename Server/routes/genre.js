@@ -85,7 +85,7 @@ genre.delete('/remove/:id', requireAdmin, async (req, res) => {
 
             try {
                 await fs.unlink(file_path);
-                console.log('Deleted: ', image_path);
+                console.log('Deleted: ', file_path);
             } catch (err) {
                 console.error('Failed to delete: ', err);
             }
@@ -99,6 +99,75 @@ genre.delete('/remove/:id', requireAdmin, async (req, res) => {
 
     } catch(err) {
         console.error('Failed to delete genre: ', err);
+    }
+});
+
+
+genre.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [row] = await pool.query(
+            'SELECT * FROM genres WHERE id = ?',
+            [id]
+        );
+
+        return res.status(200).json(row[0]);
+    } catch(err) {
+        console.log('Failed to retrieve data: ');
+    }
+});
+
+
+genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {name} = req.body;
+
+        const [prev] = await pool.query(
+            'SELECT * FROM genres WHERE id = ?', [id]
+        );
+
+        const prev_name = prev[0].name;
+        const prev_image = prev[0].cover_art_url;
+
+        console.log(prev_image);
+
+        if (name === prev_name) {
+            return res.status(409).send('Duplicate record for name.');
+        }
+
+
+        const cover_art_url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
+        if (cover_art_url) {
+            if (prev_image) {
+                const image_filename = path.basename(prev_image);
+                const image_filepath = path.join(uploads_dir, image_filename);
+
+                try {
+                    fs.unlink(image_filepath);
+                    console.log('Replaced image: ', image_filepath);
+                } catch(err) {
+                    console.error('Failed to delete image: ', err);
+                }
+            }
+        }
+
+        await pool.query(
+            'UPDATE genres SET name = ?, cover_art_url = ? WHERE id = ?',
+            [name, cover_art_url, id]
+        );
+
+        return res.status(200).send({
+            success: true,
+            genre: name,
+            image: cover_art_url,
+            message: 'Genre updated!',
+        })
+
+    } catch (err) {
+        console.error('Failed to update genre: ', err);
     }
 });
 
