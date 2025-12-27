@@ -132,21 +132,32 @@ genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res
         const prev_image = prev[0].cover_art_url;
 
         console.log(prev_image);
+        const [check] = await pool.query('SELECT * FROM genres WHERE name = ?', [name]);
 
-        if (name === prev_name) {
+        if (check.length > 0) {
+            console.error('Error duplicate');
+            return res.send({
+                message:'This name already exist, please use another.'
+            });
+        }
+
+        if (name && name === prev_name) {
             return res.status(409).send('Duplicate record for name.');
         }
 
 
-        const cover_art_url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+        let cover_art_url = prev_image;
 
-        if (cover_art_url) {
+        
+        if (req.file) {
+            cover_art_url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
             if (prev_image) {
                 const image_filename = path.basename(prev_image);
                 const image_filepath = path.join(uploads_dir, image_filename);
 
                 try {
-                    fs.unlink(image_filepath);
+                    await fs.unlink(image_filepath);
                     console.log('Replaced image: ', image_filepath);
                 } catch(err) {
                     console.error('Failed to delete image: ', err);
@@ -156,18 +167,19 @@ genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res
 
         await pool.query(
             'UPDATE genres SET name = ?, cover_art_url = ? WHERE id = ?',
-            [name, cover_art_url, id]
+            [name || prev_name, cover_art_url, id]
         );
 
         return res.status(200).send({
             success: true,
-            genre: name,
+            genre: name || prev_name,
             image: cover_art_url,
             message: 'Genre updated!',
         })
 
     } catch (err) {
         console.error('Failed to update genre: ', err);
+        return res.status(500).json({ error: 'Internal server error.' });
     }
 });
 

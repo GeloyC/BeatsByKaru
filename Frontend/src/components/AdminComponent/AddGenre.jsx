@@ -32,7 +32,7 @@ const AddGenre = ({ closeAddGenreWindow }) => {
         e.preventDefault();
 
         if (!imageBlob || genreName === '') {
-            setError("Please provide both genre name and an image for it.");
+            setError("Please provide both genre name and image.");
             return;
         }
         
@@ -45,7 +45,7 @@ const AddGenre = ({ closeAddGenreWindow }) => {
         console.log('File: ', imageBlob);
 
         createGenre.mutate(imageForm);    
-
+        closeAddGenreWindow();
     }
 
     const resetGenre = () => {
@@ -135,7 +135,7 @@ const AddGenre = ({ closeAddGenreWindow }) => {
                     {sucessMessage && ( <span className='flex w-full justify-center text-[#007F80] font-bold'>{sucessMessage}</span> )}
 
                     {error && (
-                        <span className='flex w-full justify-center text-[#FF0000]'>{error}</span>
+                        <span className='flex w-full justify-center text-[14px] text-[#FF0000]'>{error}</span>
                     )}
                     
                 </div>

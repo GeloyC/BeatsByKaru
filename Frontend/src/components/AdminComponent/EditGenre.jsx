@@ -9,6 +9,7 @@ const EditGenre = ({ genre_id, onClose }) => {
     const [newGenreName, setNewGenreName] = useState('');
     const [newImagePrev, setNewImagePrev] = useState('');
     const [newImageBlob, setNewImageBlob] = useState(null);
+    const [error, setError] = useState('');
 
     const { data: genre, isLoading } = useQuery({
         queryKey: ['genreview'],
@@ -43,6 +44,10 @@ const EditGenre = ({ genre_id, onClose }) => {
         genreForm.append('name', newGenreName);
         genreForm.append('newImage', newImageBlob);
 
+        if (newGenreName === genre.name) {
+            setError('No changes will be made since the name stayed the same.');
+        }
+
         newGenreChange(genreForm);
     }
 
@@ -54,11 +59,16 @@ const EditGenre = ({ genre_id, onClose }) => {
             });
 
             console.log(response.data);
+            setError(response.data.message)
             return response.data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['genre']);
-            onClose();
+            // onClose();
+        },
+        onError: () => {
+            console.log(response.message)
+            setError('Duplicate');
         }
     })
 
@@ -78,15 +88,22 @@ const EditGenre = ({ genre_id, onClose }) => {
                     <div className='flex flex-col w-full justify-center gap-4'>
                         <div className='flex w-full items-center gap-2'>
                             <span>Name</span>
-                            <input type="text" value={newGenreName || genre.name || ''} onChange={(e) => setNewGenreName( e.target.value)}
-                            className='px-3 py-1 rounded-[5px] w-full border-[#CCC] focus:border-[#2A2A2A] border focus:outline-none'/>
+                            <div className='flex flex-col w-full gap-1'>
+                                {error && <span className='text-[14px] text-[#FF0000]'>{error}</span>}
+                                <input type="text" value={newGenreName || genre.name || ''} onChange={(e) => {setNewGenreName( e.target.value), setError('')}}
+                                className='px-3 py-1 rounded-[5px] w-full border-[#CCC] focus:border-[#2A2A2A] border focus:outline-none'/>
+                            </div>
                         </div>
 
                         <div className='flex flex-col w-full gap-2'>
                             <span>Image</span>
 
                             <div className='flex flex-col w-full items-center justify-center'> 
-                                {newImagePrev ? (
+                                { isLoading ? (
+                                    <>
+                                        Loading...
+                                    </>
+                                ) : newImagePrev ? (
                                     <div className='relative flex w-[350px] h-[350px] rounded-[10px] overflow-hidden border-2 border-[#03f8c5] border-dashed'>
                                         <button onClick={() => setNewImagePrev('')} className='absolute top-2 right-2 bg-[#FFF] rounded-full p-0.5'>
                                             <img src="/src/assets/icons/clear.png" alt="clear" className='size-6 opacity-50 hover:opacity-100'/>
@@ -95,8 +112,8 @@ const EditGenre = ({ genre_id, onClose }) => {
                                     </div>
                                 ) : (
                                     <div className='relative flex w-[350px] h-[350px] rounded-[10px] overflow-hidden items-center justify-center'>
-                                        <label htmlFor="genreImage" className='absolute top-2 right-2 self-end w-fit py-1 px-2 items-end justify-end font-bold cursor-pointer  rounded-[10px] hover:bg-[#CCC] active:bg-[#FFF] bg-[#FFF]'>
-                                            Upload new
+                                        <label htmlFor="genreImage" className='absolute top-2 right-2 self-end w-fit py-1 px-2 items-end justify-end font-bold cursor-pointer text-[14px] bg-[#EEE] rounded-[10px] hover:bg-[#CCC] active:bg-[#FFF]'>
+                                            Change Image
                                             <input type="file" onChange={handleNewImagePreview} id="genreImage" accept='image/jpeg, image/png' hidden/>
                                         </label>
                                         <img src={genre.cover_art_url} alt="" className='object-cover w-full h-full'/>
@@ -104,6 +121,7 @@ const EditGenre = ({ genre_id, onClose }) => {
                                 )}
                             </div>
                         </div>
+
                     </div>
 
                     <div className='flex w-full items-center justify-end gap-1 pt-4'>
