@@ -1,24 +1,36 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { useLicense } from '../../../Hooks/LicenseHook';
 
 const ManageLicense = () => {
     const base_url = 'http://localhost:5000';
     const queryClient = useQueryClient();
 
+    // Initial states
     const [isAddLicenseOpen, setIsAddLicenseOpen] = useState(false);
     const [licenseType, setLicenseType] = useState('');
     const [licenseBlob, setLicenseBlob] = useState(null);
+    const [error, setError] = useState('');
 
     const [fileName, setFileName] = useState('');
+    const [hovered, setHovered] = useState('');
 
+
+    // States when editing a license
+    const [newLicense, setNewLicense] = useState('');
+    const [inputOpen, setInputOpen] = useState(false);
 
     const handleFilePreview = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file) {
+            setError('File is empty!');
+            return;
+        };
 
         setLicenseBlob(file); 
-        console.log(file.name);
+        URL.createObjectURL(file);
+        console.log();
         setFileName(file.name);
     }
 
@@ -29,7 +41,27 @@ const ManageLicense = () => {
         licenseForm.append('license', licenseType);
         licenseForm.append('license_file', licenseBlob);
 
+        if (!licenseType || licenseType === '') {
+            setError('Empty license name!');
+            return;
+        }
+
         createLicense(licenseForm);
+    }
+
+    const cancelFileChange = () => {
+        setLicenseBlob(null);
+        setLicenseType('');
+        setError('');
+        setFileName('');
+        setIsAddLicenseOpen(false);
+    }
+
+    const hoverLicense = (id) => { setHovered(prev => (prev === id ? null : id)) }
+
+    const editLicense = (id) => {
+        setInputOpen(prev => (prev === id ? null : id))
+        console.log('Open: ', id)
     }
 
 
@@ -50,17 +82,7 @@ const ManageLicense = () => {
     });
 
 
-    const { data: license = [], isLoading } = useQuery({
-        queryKey: ['license'],
-        queryFn: async () => {
-            const response = await axios.get(`${base_url}/license`, {
-                withCredentials: true
-            });
-
-            console.log(response.data)
-            return response.data;
-        }
-    });
+    const { data: license = [], isLoading } = useLicense();
 
 
 
@@ -74,14 +96,41 @@ const ManageLicense = () => {
                 </button>
             </div>
 
-            <div className='flex flex-col w-full gap-2 items-start justify-center'>
+            <div className='flex flex-col w-full gap-1 items-start justify-center'>
                 {license.map((lic) => (
-                    <div key={lic.id} className='flex items-center justify-between w-full p-2 px-4 rounded-[10px] cursor-pointer bg-[#EADCA7]'>
-                        <div className='flex w-full items-center gap-3'>
-                            <a href={lic.document_url} target='_blank' className='font-bold hover:underline active:text-[#03f8c5]'>{lic.license}</a>
-                            <span className='opacity-25'>|</span>
-                            <span className='opacity-50'>{lic.date_created}</span>
+                    <div key={lic.id} onMouseEnter={() => hoverLicense(lic.id)} onMouseLeave={() => hoverLicense(null)} className='flex items-center justify-between w-full h-auto gap-1 cursor-pointer overflow-hidden bg-[#EADCA7] rounded-[5px]'>
+                        
+                        <div className='flex items-center gap-3 px-3 py-2  w-full'>
+                            {inputOpen === lic.id ? (
+                                <input type="text" value={newLicense || lic.license || ''} onChange={(e) => setNewLicense(e.target.value)} className='px-3 py-1 rounded-[5px] bg-none border border-[#CCC]'/>
+                            ) : (
+                                <a href={lic.document_url} target='_blank' className='font-bold hover:underline active:text-[#03f8c5]'>{lic.license}</a>
+                            )}
+
                         </div>
+
+
+                        
+                        {hovered === lic.id && (
+                            <div className='flex items-center pr-1'>
+                                {inputOpen === lic.id ? (
+                                    <div className='flex items-center w-full'>
+                                        <button className='px-1 opacity-50 hover:opacity-100 active:opacity-50'>Save</button>
+                                        <button onClick={() => editLicense(null)} className='px-2 opacity-50 hover:opacity-100 active:opacity-50'>Cancel</button>
+                                    </div>
+                                ) : (
+                                    <button onClick={() => editLicense(lic.id)} className='flex items-center justify-center p-2 opacity-50 hover:opacity-100 active:opacity-50' title='Edit'>
+                                        Edit
+                                    </button>
+                                )}
+
+
+                                <span className='opacity-50'>|</span>
+                                <button className='p-2 opacity-50 hover:opacity-100 active:opacity-50' title='Delete'>
+                                    Delete
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ))}
                     
@@ -90,7 +139,7 @@ const ManageLicense = () => {
                 {isAddLicenseOpen && (
                 <form onSubmit={handleFileChange} className='flex items-center w-full gap-2'>
                     <input type="text" placeholder='Enter a name for the license type' className='w-full px-3 py-2 rounded-[5px] border border-[#CCC] focus:border-[#2A2A2A] focus:outline-none'
-                    value={licenseType} onChange={(e) => setLicenseType(e.target.value)}/>
+                    value={licenseType} onChange={(e) => {setLicenseType(e.target.value); setError('')}}/>
 
                     <div className='flex items-center gap-2'>
                         { fileName ? (
@@ -110,11 +159,11 @@ const ManageLicense = () => {
 
                     <div className='flex items-center w-fit gap-1'>
                         <button className='px-3 py-2 bg-[#03f8c5] rounded-[5px] border border-[#BBB] hover:opacity-75 active:opacity-100'>Save</button>
-                        <button onClick={() => setIsAddLicenseOpen(false)} className='px-3 py-2 bg-[#EADCA7] rounded-[5px] border border-[#BBB] hover:opacity-75 active:opacity-100'>Cancel</button>
+                        <button type='button' onClick={cancelFileChange} className='px-3 py-2 bg-[#EADCA7] rounded-[5px] border border-[#BBB] hover:opacity-75 active:opacity-100'>Cancel</button>
                     </div>
                 </form>
                 )}
-
+                {error && <span className='text-[#FF0000] text-[14px] font-bold px-2'>{error}</span>}
             </div>
         </section>
     )
