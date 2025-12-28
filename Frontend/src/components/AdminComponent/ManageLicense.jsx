@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 
 const ManageLicense = () => {
     const base_url = 'http://localhost:5000';
@@ -12,18 +13,55 @@ const ManageLicense = () => {
     const [fileName, setFileName] = useState('');
 
 
-    const handleFileChange = (e) => {
-        e.preventDefault();
-
+    const handleFilePreview = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-        console.log(file);
 
         setLicenseBlob(file); 
         console.log(file.name);
         setFileName(file.name);
     }
+
+    const handleFileChange = (e) => {
+        e.preventDefault();
+        
+        const licenseForm = new FormData(e.target);
+        licenseForm.append('license', licenseType);
+        licenseForm.append('license_file', licenseBlob);
+
+        createLicense(licenseForm);
+    }
+
+
+    const { mutate: createLicense } = useMutation({
+        mutationFn: async (formData) => {
+            const response = await axios.post(`${base_url}/license/add`, formData, { withCredentials: true });
+
+            console.log('Result: ', response.data);
+            return response.data;
+        }, 
+        onSuccess: () => {
+            console.log('Good shit nice!');
+            queryClient.invalidateQueries(['license']);
+            setFileName('');
+            setLicenseBlob('');
+            setIsAddLicenseOpen(false);
+        }
+    });
+
+
+    const { data: license = [], isLoading } = useQuery({
+        queryKey: ['license'],
+        queryFn: async () => {
+            const response = await axios.get(`${base_url}/license`, {
+                withCredentials: true
+            });
+
+            console.log(response.data)
+            return response.data;
+        }
+    });
+
 
 
 
@@ -37,15 +75,20 @@ const ManageLicense = () => {
             </div>
 
             <div className='flex flex-col w-full gap-2 items-start justify-center'>
-                <a className='flex w-full items-center gap-2 p-2 px-4 cursor-pointer bg-[#EADCA7] rounded-[10px] hover:opacity-75 active:opacity-100'>
-                    <span className='font-bold'>License Name</span>
-                    <span className='opacity-50'>file name</span>
-                </a>
+                {license.map((lic) => (
+                    <div key={lic.id} className='flex items-center justify-between w-full p-2 px-4 rounded-[10px] cursor-pointer bg-[#EADCA7]'>
+                        <div className='flex w-full items-center gap-3'>
+                            <a href={lic.document_url} target='_blank' className='font-bold hover:underline active:text-[#03f8c5]'>{lic.license}</a>
+                            <span className='opacity-25'>|</span>
+                            <span className='opacity-50'>{lic.date_created}</span>
+                        </div>
+                    </div>
+                ))}
                     
                 
 
                 {isAddLicenseOpen && (
-                <form className='flex items-center w-full gap-2'>
+                <form onSubmit={handleFileChange} className='flex items-center w-full gap-2'>
                     <input type="text" placeholder='Enter a name for the license type' className='w-full px-3 py-2 rounded-[5px] border border-[#CCC] focus:border-[#2A2A2A] focus:outline-none'
                     value={licenseType} onChange={(e) => setLicenseType(e.target.value)}/>
 
@@ -59,7 +102,7 @@ const ManageLicense = () => {
                             <label htmlFor="file" className='flex items-center gap-2 text-[16px] font-bold border-[#BBB] border rounded-[5px] px-3 py-2 bg-[#EEE] hover:bg-[#CCC] active:bg-[#EEE] cursor-pointer'>
                                 <img src="/src/assets/icons/file-upload.png" alt="upload file" className='size-6 shrink-0'/>
                                 <span className='whitespace-nowrap'>Attach document</span>
-                                <input type="file" onChange= {handleFileChange} id="file" accept='application/pdf' hidden/>
+                                <input type="file" onChange= {handleFilePreview} id="file" accept='application/pdf' hidden/>
                             </label>
                         )}
 

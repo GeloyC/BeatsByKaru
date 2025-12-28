@@ -26,18 +26,11 @@ function App() {
         <Route path='music/all' element={<AllMusic />} />
         <Route path="projects" element={ <Projects /> }/>
 
-
-          <Route path='admin' element={
-            user ? <Navigate to='/dashboard'/> : <Login />
-          } />
-
-          <Route path='dashboard' element={
-            user ? <Dashboard /> : <Navigate to='/admin'/>
-          } />
-
-          <Route path='manage' element={<Manage />} />
-
-          <Route path='create' element={<Create />} />
+        {/* Admin Routes */}
+        <Route path='admin' element={ user ? <Navigate to='/dashboard'/> : <Login />}/>
+        <Route path='dashboard' element={ user ? <Dashboard /> : <Navigate to='/admin'/>}/>
+        <Route path='manage' element={ user ? <Manage /> : <Navigate to='/admin'/>}/>
+        <Route path='create' element={ user ? <Create /> : <Navigate to='/admin'/>}/>
     </Routes>
   )
 }
