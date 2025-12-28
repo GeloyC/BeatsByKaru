@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 
 import NavigationBar from '../../components/NavigationBar';
 import Footer from '../../components/Footer';
+import { useGenre } from '../../../Hooks/GenreHook';
 
 const Music = () => {
-
+  const { data: genres = [], isLoading } = useGenre();
 
 
   return (
@@ -25,7 +26,9 @@ const Music = () => {
             <span className='text-[#FFF] text-[18px] font-bold'>Explore Genres</span>
 
             <div className='flex gap-2 overflow-wrap:break-word'>
-                <Link  className='p-1 px-3 rounded-[10px] text-[18px] text-[#FFF] border border-[#FFF] hover:bg-[#2A2A2A] active:bg-[#141414]'>Genre</Link>
+              {genres.map((genre) => (
+                <Link  className='p-1 px-3 rounded-[10px] text-[18px] text-[#FFF] border border-[#FFF] hover:bg-[#2A2A2A] active:bg-[#141414]'>{genre.name}</Link>
+              ))}
                 <Link to='/music/all'  className='p-1 px-3 rounded-[10px] text-[18px] text-[#FFF] border border-[#FFF] hover:bg-[#2A2A2A] active:bg-[#141414]'>Explore All</Link>
             </div>
           </div>

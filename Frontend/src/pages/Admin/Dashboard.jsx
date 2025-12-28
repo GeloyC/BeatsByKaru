@@ -4,7 +4,7 @@ import SideNav from '../../components/AdminComponent/SideNav'
 
 const Dashboard = () => {
     return (
-        <div className='flex flex-col w-full h-screen bg-[#FFF]'>
+        <div className='flex flex-col w-full min-h-screen bg-[#FFF]'>
             <TopNav />
 
             <div className='grid grid-cols-[15%_85%] h-full'>

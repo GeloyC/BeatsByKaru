@@ -54,8 +54,8 @@ function Home() {
                 </div>
 
 
-                <HeaderGenres />
                 <ProjectSnippet />
+                <HeaderGenres />
                 <LatestRelease />
                 <Footer />
             </div>

@@ -7,6 +7,8 @@ import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
 import AddGenre from '../../components/AdminComponent/AddGenre';
 import EditGenre from '../../components/AdminComponent/EditGenre';
+import { useGenre } from '../../../Hooks/GenreHook';
+import ManageLicense from '../../components/AdminComponent/ManageLicense';
 
 const Manage = () => {
   const base_url = `http://localhost:5000`;
@@ -15,8 +17,8 @@ const Manage = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isGenreWindowClosed, setIsGenreWidnowClosed] = useState(false);
   const [isGenreHovered, setIsGenreHovered] = useState(false);
-
   const [genreId, setGenreId] = useState('');
+
 
 
   const handleCloseAddGenreWindow = () => {
@@ -24,22 +26,8 @@ const Manage = () => {
   }
 
 
-  const { data: genres = []} = useQuery({
-      queryKey: ['genre'],
-      queryFn: async () => {
-          try {
-              const response = await axios.get(`${base_url}/genre/all`, {
-                  withCredentials: true
-              });
-
-              console.log(response.data)
-
-              return response.data;
-          } catch (err) {
-              console.error('Error retreiving genre data: ', err);
-          }
-      }
-  });
+  // retrieve data: genres
+  const { data: genres = [] } = useGenre();
 
   const hoverGenreMenu = (genre_id) => {
     setIsGenreHovered(prev => (prev === genre_id ? null : genre_id))
@@ -71,7 +59,7 @@ const Manage = () => {
 
 
   return (
-    <div className='relative flex flex-col w-full h-screen bg-[#FFF]'>
+    <div className='relative flex flex-col w-full min-h-screen bg-[#FFF]'>
         <TopNav />
 
         <div className='relative grid grid-cols-[15%_85%] h-full w-full'>
@@ -83,11 +71,12 @@ const Manage = () => {
               <div className='flex flex-col w-full p-5 gap-5'>
                 <span className='text-[28px] font-bold text-[#141414]'>Manage Contents</span>
 
-                <div className='flex flex-col w-full justify-between gap-4'>
+                {/* manage genres */}
+                <section className='flex flex-col w-full gap-4'>
                   <div className='flex items-center justify-between gap-4 w-full pb-2 border-b border-b-[#DDD]'>
                     <span className='font-bold text-[18px] text-[#005F60]'>All Genres</span>
                     {!isGenreWindowClosed && (
-                      <button onClick={handleCloseAddGenreWindow} className='p-1 px-2 bg-[#03f8c5] text-[#005F60] rounded-[#005F60] text-[16px] font-bold rounded-[5px] hover:bg-[#007F80] hover:text-[#FFF] active:bg-[#03f8c5]'>+ Add Genre</button>
+                      <button onClick={handleCloseAddGenreWindow} className='p-1 px-2 bg-[#03f8c5] text-[#005F60] rounded-[#005F60] text-[16px] font-bold rounded-[5px] hover:opacity-75 active:opacity-100'>+ Add Genre</button>
                     )}
                   </div>
 
@@ -120,15 +109,17 @@ const Manage = () => {
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
+
+                {/* manage license type */}
+                <ManageLicense />
+                
               </div>
 
               {/* Genre Create */}
-              {isGenreWindowClosed && (
-                <AddGenre closeAddGenreWindow={handleCloseAddGenreWindow}/>
-              )}
-
+              {isGenreWindowClosed && (<AddGenre closeAddGenreWindow={handleCloseAddGenreWindow}/>)}
               {genreId && ( <EditGenre genre_id={genreId} onClose={() => setGenreId('')}/> )}
+
             </div>
         </div>
 

@@ -12,6 +12,7 @@ import { sessionStore } from './data/database.js';
 // Routes
 import user from './routes/user.js';
 import genre from './routes/genre.js';
+import license from './routes/license.js';
 
 dotenv.config();
 
@@ -22,7 +23,9 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url); 
 const __dirname = path.dirname(__filename);
 
+// static file path
 app.use('/uploads', express.static(path.join(__dirname, 'Files/GenreCover')));
+app.use('/documents', express.static(path.join(__dirname, 'Files/License')));
 
 
 const PORT = 5000;
@@ -49,6 +52,7 @@ app.use(session({
 // Initializing the routes
 app.use('/user', user);
 app.use('/genre', genre);
+app.use('/license', license);
 
 app.get('/', (req, res) => {
     res.send("Expressing....");

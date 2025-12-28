@@ -6,7 +6,7 @@ const SideNav = () => {
 
     return (
         <div className="sticky top-[64px] flex flex-col bg-[#FFF] h-[calc(100vh-64px)] border-r border-r-[#DDDDDD] p-2 gap-1 z-10">
-            <div className='flex flex-col h-full'>
+            <div className='flex flex-col h-full gap-1'>
                 <Link to="/dashboard" className={`${location.pathname === '/dashboard' ? 'bg-[#DDD]' : 'hover:bg-[#BBB]'} p-2  rounded-[5px] text-[14px] font-bold`}>
                     Dashboard
                 </Link>

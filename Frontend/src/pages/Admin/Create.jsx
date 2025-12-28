@@ -3,6 +3,7 @@ import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
 
 import WaveformVisual from '../../components/WaveformVisual'
+import { useGenre } from '../../../Hooks/GenreHook'
 
 const Create = () => {
     const [isTypeSelected, setIsTypeSelected] = useState('');
@@ -86,7 +87,18 @@ const Create = () => {
     }, [audioTaggedURL, audioUntaggedURL]);
 
 
+    const {data: genres = [], isLoading} = useGenre();
+    const [selectedGenre, setSelectedGenre] = useState(genres);
 
+    const HandleGenreChange = (e) => {
+        const { value, checked } = e.target;
+        setSelectedGenre((prev) => 
+            checked ? [...prev, value] : prev.filter((genre) => genre !== value)
+        );
+
+        console.log('Current: ', value, checked);
+        console.log(selectedGenre);
+    };
 
 
 
@@ -189,6 +201,18 @@ const Create = () => {
                                         <input type="text" placeholder="Enter BPM" className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'/>
                                     </div>
 
+                                    <div className='flex flex-col w-full items-start justify-center'>
+                                        <span className='font-bold text-[#1E1E1E] opacity-50'>Select a genre for this track (You select all that applies)</span>
+                                        <div className='flex w-full gap-1 items-center justify-start p-2 border-dashed border-2 border-[#CCC] rounded-[5px]'>
+                                            {genres.map((genre) => (
+                                                <label key={genre.id} htmlFor={`genre_${genre.name}`} className={`${selectedGenre.includes(genre.name) ? 'bg-[#03f8c5]' : 'bg-[#FFF]'} px-2 py-0.5 rounded-[5px] border border-[#1E1E1E] cursor-pointer`}>
+                                                    {genre.name}
+                                                    <input type="checkbox" name="genre_group" id={`genre_${genre.name}`} value={genre.name} onChange={HandleGenreChange} hidden/>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <div className='flex flex-col w-full'>
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Upload Cover Art (Must be 1:1 Ratio)</span>
                                         {!coverArt ? (
@@ -199,7 +223,7 @@ const Create = () => {
                                         ) : (
                                             <div className='flex items-center justify-center w-full p-2'>
                                                 <div className='relative flex items-start justify-start w-[300px] h-[300px] rounded-[5px] overflow-hidden'>
-                                                    <button onClick={resetCoverArtPreview} className='absolute top-1 right-3 text-[#FFF] bg-[#000] rounded-full size-5 active:bg-[#CCC] flex items-center justify-center'>x</button>
+                                                    <button onClick={resetCoverArtPreview} className='absolute top-2 right-2 text-[14px] text-[#141414] bg-[#EEE] rounded-[10px] px-3 py-1  active:bg-[#CCC] flex items-center justify-center'>Change Image</button>
                                                     <img src={coverArt} alt="" className='w-full h-full object-cover'/>
                                                 </div>
                                             </div>

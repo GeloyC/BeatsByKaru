@@ -2,26 +2,11 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
+import { useGenre } from '../../Hooks/GenreHook'
 
 const HeaderGenres = () => {
-    const base_url = `http://localhost:5000`;
 
-    const { data: genres = [], isLoading} = useQuery({
-        queryKey: ['genre'],
-        queryFn: async () => {
-            try {
-                const response = await axios.get(`${base_url}/genre/all`, {
-                    withCredentials: true
-                });
-
-                console.log(response.data)
-
-                return response.data;
-            } catch (err) {
-                console.error('Error retreiving genre data: ', err);
-            }
-        }
-    });
+    const { data: genres = [], isLoading } = useGenre();
 
     return (
         <div className='flex flex-col w-full bg-[#141414] gap-10'>
@@ -56,13 +41,13 @@ const HeaderGenres = () => {
                         </div>
                     ) : (
                         genres.map((genre) => (
-                            <div key={genre.id} className={`relative flex items-center justify-center rounded-[10px] overflow-hidden text-[24px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100`}>
+                            <div key={genre?.id} className={`relative flex items-center justify-center rounded-[10px] overflow-hidden text-[24px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100`}>
                                 {/* Cover art is displayed here */}
                                 <div className={`absolute inset-0 bg-cover bg-center`} 
-                                    style={{backgroundImage: `url(${genre.cover_art_url})`}}
+                                    style={{backgroundImage: `url(${genre?.cover_art_url})`}}
                                 />
                                 <div className="absolute inset-0 bg-black/40" />
-                                <span className='absolute top-2 left-3 font-bold'>{genre.name}</span>
+                                <span className='absolute top-2 left-3 font-bold'>{genre?.name}</span>
                             </div>
                     )))}
                 </div>
