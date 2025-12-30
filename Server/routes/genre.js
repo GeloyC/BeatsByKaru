@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { pool } from '../data/database.js';
+import { db } from '../data/database.js';
 import { requireAdmin } from './user.js';
 import fs from 'fs/promises'
 import path from 'path';
@@ -33,13 +33,13 @@ genre.post('/new', requireAdmin, upload.single('cover_art'), async (req, res) =>
 
         const cover_art_url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-        const [row] = await pool.query(
-            'INSERT INTO genres (name, cover_art_url) VALUES (?, ?)',
+        const result = await db.one(
+            'INSERT INTO genres (name, cover_art_url) VALUES ($1, $2)',
             [ name, cover_art_url ]
         );
 
         return res.send({
-            id: row.insertId,
+            id: result.row.insertId,
             name: name,
             cover_art_url,
             message: 'Genre created successfully!'
@@ -54,7 +54,7 @@ genre.post('/new', requireAdmin, upload.single('cover_art'), async (req, res) =>
 
 genre.get('/all', async (req, res) => {
     try {
-        const [row] = await pool.query(
+        const [row] = await db.any(
             'SELECT * FROM genres'
         );
 
@@ -72,8 +72,8 @@ genre.delete('/remove/:id', requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
-        const [row] = await pool.query(
-            'SELECT cover_art_url FROM genres WHERE id = ?',
+        const [row] = await db.one(
+            'SELECT cover_art_url FROM genres WHERE id = $1',
             [id]
         );
 
@@ -91,7 +91,7 @@ genre.delete('/remove/:id', requireAdmin, async (req, res) => {
             }
         }
 
-        await pool.query('DELETE FROM genres WHERE id = ?', [id]);
+        await db.one('DELETE FROM genres WHERE id = $1', [id]);
 
         return res.status(200).json({
             message: 'Genre id ' + id + ' has been successfully deleted!',
@@ -107,8 +107,8 @@ genre.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        const [row] = await pool.query(
-            'SELECT * FROM genres WHERE id = ?',
+        const [row] = await db.one(
+            'SELECT * FROM genres WHERE id = $1',
             [id]
         );
 
@@ -124,7 +124,7 @@ genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res
         const { id } = req.params;
         const {name} = req.body;
 
-        const [prev] = await pool.query(
+        const [prev] = await db.one(
             'SELECT * FROM genres WHERE id = ?', [id]
         );
 
@@ -132,7 +132,7 @@ genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res
         const prev_image = prev[0].cover_art_url;
 
         console.log(prev_image);
-        const [check] = await pool.query('SELECT * FROM genres WHERE name = ?', [name]);
+        const [check] = await db.one('SELECT * FROM genres WHERE name = $1', [name]);
 
         if (check.length > 0) {
             console.error('Error duplicate');
@@ -165,8 +165,8 @@ genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res
             }
         }
 
-        await pool.query(
-            'UPDATE genres SET name = ?, cover_art_url = ? WHERE id = ?',
+        await db.one(
+            'UPDATE genres SET name = $1, cover_art_url = $2 WHERE id = $3',
             [name || prev_name, cover_art_url, id]
         );
 

@@ -26,6 +26,7 @@ const Login = () => {
         withCredentials: true
       });
 
+      console.log('User logged: ', response.data);
       await queryClient.invalidateQueries(['user']);
       navigate('/dashboard');
     } catch(err) {

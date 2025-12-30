@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { pool } from '../data/database.js';
+import { db } from '../data/database.js';
 import { requireAdmin } from './user.js';
 import fs from 'fs/promises'
 import path from 'path';
@@ -29,7 +29,7 @@ license.post('/add', requireAdmin, upload.single('license_file'), async (req, re
 
         const document_url = `${req.protocol}://${req.get('host')}/documents/${req.file.filename}`;
 
-        const [row] = await pool.query(
+        const [row] = await db.query(
             'INSERT INTO license (license, document_url) VALUES (?, ?)',
             [license, document_url]
         );
@@ -50,7 +50,7 @@ license.post('/add', requireAdmin, upload.single('license_file'), async (req, re
 
 license.get('/', async (req, res) => {
     try {
-        const [row] = await pool.query(
+        const [row] = await db.query(
             `SELECT     
                 id, license,
                 DATE_FORMAT(date_created, '%M %d, %Y') AS date_created,

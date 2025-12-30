@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { pool } from '../data/database.js';
+import { db } from '../data/database.js';
 
 const user = express.Router();
 
@@ -15,25 +15,25 @@ user.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        const [row] = await pool.execute(
-            'SELECT id, username, password from admin WHERE username = ?',
+        const result = await db.one(
+            'SELECT id, username, password from admin WHERE username = $1',
             [username]
         );
 
-        if (row.length === 0 ) {
+        if (!result) {
             return res.status(401).json({ message: 'Incorrect login credentials!'});
         }
 
-        const admin = row[0];
-        const is_match = await bcrypt.compare(password, admin.password);
+        // const admin = result.row[0];
+        const is_match = await bcrypt.compare(password, result.password);
 
         if(!is_match) {
             return res.status(401).json({ message: 'Invalid login credentials!' });
         }
 
         req.session.admin = {
-            id: admin.id,
-            username: admin.username
+            id: result.id,
+            username: result.username
         }
 
         res.json({ message:'Login successful!' })
