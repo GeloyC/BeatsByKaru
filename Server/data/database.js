@@ -1,5 +1,5 @@
-import mysql from 'mysql2/promise';
-import mysqlSession from 'express-mysql-session';
+import pgPromise from 'pg-promise';
+import pgSession from 'connect-pg-simple';
 import session from 'express-session';
 import dotenv from 'dotenv';
 
@@ -7,37 +7,34 @@ dotenv.config();
 
 
 
+// initialize pg-promise first
+const pgp = new pgPromise();
 
-export const pool = mysql.createPool({
-    host: process.env.DB_HOST,
+export const pool = pgp({
     user: process.env.DB_USER,
+    host: process.env.DB_HOST,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
     port: process.env.DB_PORT,
-    waitForConnections:true,
-    connectionLimit: 10,
-    queueLimit:0,
+    database: process.env.DB_NAME
 })
 
 
-const MySQLStore = mysqlSession(session);
-export const sessionStore = new MySQLStore(
-    {
-        clearExpired: true,
-        checkExpirationInterval: 900000, // 15 Minutes
-        expiration: 1000 * 60 * 60 * 24 * 7 // 7 Days
-    },
-    pool
-);
+// using session with Postgres
+const PgSession = pgSession(session);
+export const sessionStore = new PgSession({
+    pool,
+    tableName: 'session',
+});
+
+
 
 
 export async function testConnection() {
     try {
-        const conenction = await pool.getConnection();
-        console.log('Connected to database successfully!');
+        await pool.one('SELECT 1');
+        console.log('Connected to POSTGRES successfully!');
 
-        conenction.release();
     } catch (err) {
-        console.error('Error connecting to database: ', err.messsage);
+        console.error('Error connecting to POSTGRES: ', err.message);
     }
 }

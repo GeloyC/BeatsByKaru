@@ -4,6 +4,13 @@ import { pool } from '../data/database.js';
 
 const user = express.Router();
 
+
+
+// TODO:
+// Insert admin credential on admin table in Postgres
+// establish session connection too
+// have fun / study hard
+
 user.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
