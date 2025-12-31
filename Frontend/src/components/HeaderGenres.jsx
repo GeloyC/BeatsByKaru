@@ -28,9 +28,9 @@ const HeaderGenres = () => {
             {/* 
                 TODO: Scale image inside every genre box when hovered
             */}
-            <div className='flex items-center justify-start px-[8rem] w-full gap-2'>
 
-                <div className='grid grid-cols-6 w-[1500px] h-[225px] gap-2'>
+            <div className='flex items-center justify-start px-[8rem] w-full gap-2'>
+                <div className='grid grid-cols-6 w-[1500px] gap-2'>
 
                         {/* <Link className='relative flex bg-[#007F80] cursor-pointer overflow-hidden text-[24px] rounded-[5px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100'>
                             <span className='absolute top-3 left-5  font-bold'>Genre</span>
@@ -41,7 +41,7 @@ const HeaderGenres = () => {
                         </div>
                     ) : (
                         genres.map((genre) => (
-                            <div key={genre?.id} className={`relative flex items-center justify-center rounded-[10px] overflow-hidden text-[24px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100`}>
+                            <div key={genre?.id} className={`relative flex items-center justify-center h-[225px] rounded-[10px] overflow-hidden text-[24px] hover:text-[26px] text-[#FFF] hover:text-[#EADCA7] active:text-[25px] transition-all duration-100`}>
                                 {/* Cover art is displayed here */}
                                 <div className={`absolute inset-0 bg-cover bg-center`} 
                                     style={{backgroundImage: `url(${genre?.cover_art_url})`}}

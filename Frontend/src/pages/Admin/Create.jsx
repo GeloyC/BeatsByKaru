@@ -2,64 +2,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
 
-import WaveformVisual from '../../components/WaveformVisual'
 import { useGenre } from '../../../Hooks/GenreHook'
 
 const Create = () => {
     const [isTypeSelected, setIsTypeSelected] = useState('');
 
-    const [audioTaggedURL, setAudioTaggedURL] = useState(null);
-    const [audioTaggedFile, setAudioTaggedFile] = useState(null);
-    const [audioTaggedName, setAudioTaggedName] = useState('');
-
-    const [audioUntaggedFile, setAudioUntaggedFile] = useState(null)
-    const [audioUntaggedURL, setAudioUntaggedURL] = useState(null)
-    const [audioUntaggedName, setAudioUntaggedName] = useState('');
-
+    
     const [coverArt, setCoverArt] = useState(null);
-
-    const audioTaggedInputRef = useRef(null);
-    const audioUntaggedInputRef = useRef(null);
-    const coverArtInputRef = useRef(null);
-
-    // reference for waveform visual
-    const audioTaggedRef = useRef(null);
-    const audioUntaggedRef = useRef(null);
-
-
-    // AUDIO PREVIEW FOR TAGGED AND UNTAGGED
-    const handleAudioTagged = (e) => {
-        const audioFile = e.target.files[0];
-        if (!audioFile) return;
-
-
-        setAudioTaggedFile(audioFile)
-        setAudioTaggedURL(URL.createObjectURL(audioFile))
-        setAudioTaggedName(audioFile.name)
-    }
-
-    const handleAudioUntagged = (e) => {
-        const audioTaggedFile = e.target.files[0];
-        if (!audioTaggedFile) return;
-
-        setAudioUntaggedFile(audioTaggedFile);
-        setAudioUntaggedURL(URL.createObjectURL(audioTaggedFile));
-        setAudioUntaggedName(audioTaggedFile.name)
-    }
-
-    const resetTaggedAudio = () => {
-        setAudioTaggedFile(null);
-        setAudioTaggedURL(null);
-        setAudioTaggedName('');
-        audioTaggedInputRef.current.value = '';
-    }
-
-    const resetUntaggedAudio = () => {
-        setAudioUntaggedFile(null);
-        setAudioUntaggedURL(null);
-        setAudioUntaggedName('');
-        audioUntaggedInputRef.current.value = '';
-    }
 
     
     // IMAGE PREVIEW COVER ART
@@ -75,16 +24,7 @@ const Create = () => {
         reader.readAsDataURL(imageFile)
     }
 
-    const resetCoverArtPreview = () => {
-        setCoverArt(null)
-    }
 
-    useEffect(() => {
-        return () => {
-            audioTaggedURL && URL.revokeObjectURL(audioTaggedURL);
-            audioUntaggedURL && URL.revokeObjectURL(audioUntaggedURL);
-        };
-    }, [audioTaggedURL, audioUntaggedURL]);
 
 
     const {data: genres = [], isLoading} = useGenre();
@@ -144,61 +84,34 @@ const Create = () => {
                                             <span className='font-bold text-[#1E1E1E] opacity-50'>Upload Preview Audio (with Producer Tag)</span>
                                             
                                         </div>
-                                        <div className='flex items-center justify-center w-full h-[100px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
-                                            {/* {taggedPrevDisplay && (
-                                                
-                                            )} */}
-                                            {!audioTaggedURL ? (
-                                                <label htmlFor='single' className='p-1 px-3 hover:bg-[#DDD] rounded-[10px] cursor-pointer active:bg-[#FFF]'>
-                                                    Choose audio preview +  
-                                                    <input ref={audioTaggedInputRef} onChange={handleAudioTagged} type="file" name="singleUpload" id="single" hidden accept='audio/mp3' />
-                                                </label>
-                                            ) : (
-                                                <div className='flex flex-col justify-center items-center w-full p-4 gap-2'>
-                                                    <div className='flex items-center w-full justify-between'>
-                                                        <span className='text-[14px] font-bold'>{audioTaggedName}</span>
-                                                        <button onClick={resetTaggedAudio} className='p-2 rounded-full hover:bg-[#EEE] active:bg-[#CCC]'>
-                                                            <img src="/src/assets/icons/clear_black.png" alt="" className='size-3'/>
-                                                        </button>
-                                                    </div>
-                                                    <WaveformVisual audio={audioTaggedURL} />
-                                                </div>
-                                            )}
-
-
+                                        <div className='flex items-center justify-center w-full h-[75px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
+                                            <label htmlFor='single' className='flex w-full h-full items-center justify-center hover:bg-[#DDD] cursor-pointer active:bg-[#FFF]'>
+                                                <span>Choose audio preview +</span>  
+                                                <input type="file" name="singleUpload" id="single" hidden accept='audio/mp3' />
+                                            </label>
                                         </div>
                                     </div>
 
                                     <div className='flex flex-col w-full'>
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Upload Downloadable Audio (No Tag/ Clean version)</span>
-                                        <div className='flex items-center justify-center w-full h-[100px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
-                                            {!audioUntaggedURL ? (
-                                                <label htmlFor='beatTape' className='p-1 px-3 hover:bg-[#DDD] rounded-[10px] cursor-pointer active:bg-[#FFF]'>
-                                                    Choose audio +  
-                                                    <input ref={audioUntaggedInputRef} onChange={handleAudioUntagged} type="file" name="beatTapeUpload" id="beatTape" hidden accept='audio/*' />
-                                                </label>
-                                            ) : (
-                                                <div className='flex flex-col justify-center items-center w-full p-4 gap-2'>
-                                                    <div className='flex items-center justify-between w-full'>
-                                                        <span className='text-[14px] font-bold'>{audioUntaggedName}</span>
-                                                        <button onClick={resetUntaggedAudio} className='p-2 rounded-full hover:bg-[#EEE] active:bg-[#CCC]'>
-                                                            <img src="/src/assets/icons/clear_black.png" alt="" className='size-3'/>
-                                                        </button>
-                                                    </div>
-                                                    <WaveformVisual audio={audioUntaggedURL} />
-                                                </div>
-                                            )}
+                                        <div className='flex items-center justify-center w-full h-[75px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
+                                            <label htmlFor='beatTape' className='flex w-full h-full items-center justify-center hover:bg-[#DDD] cursor-pointer active:bg-[#FFF]'>
+                                                Choose audio +  
+                                                <input type="file" name="beatTapeUpload" id="beatTape" hidden accept='audio/*' />
+                                            </label>
                                         </div>
                                     </div>
 
-                                    <div className='flex flex-col w-full'>
-                                        <span className='font-bold text-[#1E1E1E] opacity-50'>Key</span>
-                                        <input type="text" placeholder="Add key like 'A min'..." className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'/>
-                                    </div>
+                                    <div className='flex items-center w-full gap-2'>
+                                        <div className='flex flex-col w-full'>
+                                            <span className='font-bold text-[#1E1E1E] opacity-50'>Key</span>
+                                            <input type="text" placeholder="Add key like 'A min'..." className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'/>
+                                        </div>
 
-                                    <div className='flex flex-col w-full'>
-                                        <span className='font-bold text-[#1E1E1E] opacity-50'>BPM</span>
-                                        <input type="text" placeholder="Enter BPM" className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'/>
+                                        <div className='flex flex-col w-full'>
+                                            <span className='font-bold text-[#1E1E1E] opacity-50'>BPM</span>
+                                            <input type="text" placeholder="Enter BPM" className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'/>
+                                        </div>
                                     </div>
 
                                     <div className='flex flex-col w-full items-start justify-center'>
@@ -218,12 +131,12 @@ const Create = () => {
                                         {!coverArt ? (
                                             <label htmlFor="cover_art" className='cursor-pointer w-full flex items-center justify-center border-dashed border-2 border-[#CCC] py-5 rounded-[5px] hover:bg-[#EEE] active:bg-[#FFF]'>
                                                 <img src="/src/assets/icons/image.png" alt="image logo" className='size-12' />
-                                                <input ref={coverArtInputRef} onChange={handlePreviewCoverArt} type="file" id="cover_art" accept='image/png, image/jpeg' hidden/>
+                                                <input onChange={handlePreviewCoverArt} type="file" id="cover_art" accept='image/png, image/jpeg' hidden/>
                                             </label>
                                         ) : (
                                             <div className='flex items-center justify-center w-full p-2'>
                                                 <div className='relative flex items-start justify-start w-[300px] h-[300px] rounded-[5px] overflow-hidden'>
-                                                    <button onClick={resetCoverArtPreview} className='absolute top-2 right-2 text-[14px] text-[#141414] bg-[#EEE] rounded-[10px] px-3 py-1  active:bg-[#CCC] flex items-center justify-center'>Change Image</button>
+                                                    <button onClick={() => setCoverArt(null)} className='absolute top-2 right-2 text-[14px] text-[#141414] bg-[#EEE] rounded-[10px] px-3 py-1  active:bg-[#CCC] flex items-center justify-center'>Change Image</button>
                                                     <img src={coverArt} alt="" className='w-full h-full object-cover'/>
                                                 </div>
                                             </div>

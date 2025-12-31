@@ -4,11 +4,14 @@ import { db } from '../data/database.js';
 import { requireAdmin } from './user.js';
 import fs from 'fs/promises'
 import path from 'path';
+import { readdirSync } from 'fs';
 
 
 
 const genre = express.Router();
 
+// TODO
+// Fix queries to align with postgres
 
 // Multer setup asdasd
 const storage = multer.diskStorage({
@@ -26,42 +29,56 @@ const upload = multer({ storage })
 
 
 
-genre.post('/new', requireAdmin, upload.single('cover_art'), async (req, res) => {
+genre.post('/new', requireAdmin, upload.single('cover_art'), async (req, res, next) => {
     try {
         const { name } = req.body;
-        if (!name) return;
+
+        if (!name) {
+            return res.status(400).json({ message: 'Name is required' });
+        };
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'Cover art is required' });
+        }
 
         const cover_art_url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
         const result = await db.one(
-            'INSERT INTO genres (name, cover_art_url) VALUES ($1, $2)',
+            'INSERT INTO genres (name, cover_art_url) VALUES ($1, $2) RETURNING id, name, cover_art_url',
             [ name, cover_art_url ]
         );
 
-        return res.send({
-            id: result.row.insertId,
-            name: name,
-            cover_art_url,
+        // return res.send({
+        //     id: result.id,
+        //     name,
+        //     cover_art_url,
+        //     message: 'Genre created successfully!'
+        // });
+
+        return res.status(201).json({
+            ...result,
             message: 'Genre created successfully!'
         });
 
     } catch(err) {
         console.error('Error genre creation: ', err);
         res.status(500).json({ message: `Server error: ${err}` });
+        next(err);
     }
 });
 
 
-genre.get('/all', async (req, res) => {
+genre.get('/all', async (req, res, next) => {
     try {
-        const [row] = await db.any(
+        const result = await db.any(
             'SELECT * FROM genres'
         );
 
-        return res.status(200).json(row)
+        return res.status(200).json(result)
 
     } catch(err) {
         console.error('Error fetching genres data: ', err);
+        next(err);
     }
 });
 
@@ -72,12 +89,11 @@ genre.delete('/remove/:id', requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
-        const [row] = await db.one(
-            'SELECT cover_art_url FROM genres WHERE id = $1',
-            [id]
+        const image = await db.one(
+            'SELECT cover_art_url FROM genres WHERE id = $1', [id]
         );
 
-        const image_url = row[0].cover_art_url;
+        const image_url = image.cover_art_url;
 
         if (image_url) {
             const filename = path.basename(image_url);
@@ -91,7 +107,7 @@ genre.delete('/remove/:id', requireAdmin, async (req, res) => {
             }
         }
 
-        await db.one('DELETE FROM genres WHERE id = $1', [id]);
+        await db.none('DELETE FROM genres WHERE id = $1', [id]);
 
         return res.status(200).json({
             message: 'Genre id ' + id + ' has been successfully deleted!',
@@ -103,52 +119,41 @@ genre.delete('/remove/:id', requireAdmin, async (req, res) => {
 });
 
 
-genre.get('/:id', async (req, res) => {
+genre.get('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const [row] = await db.one(
+        const result = await db.one(
             'SELECT * FROM genres WHERE id = $1',
             [id]
         );
 
-        return res.status(200).json(row[0]);
+        return res.status(200).json(result);
     } catch(err) {
         console.log('Failed to retrieve data: ');
+        next(err);
     }
 });
 
 
-genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res) => {
+genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res, next) => {
     try {
         const { id } = req.params;
-        const {name} = req.body;
+        const { name } = req.body;
 
-        const [prev] = await db.one(
-            'SELECT * FROM genres WHERE id = ?', [id]
+        const previous = await db.one(
+            'SELECT * FROM genres WHERE id = $1', [id]
         );
 
-        const prev_name = prev[0].name;
-        const prev_image = prev[0].cover_art_url;
-
-        console.log(prev_image);
-        const [check] = await db.one('SELECT * FROM genres WHERE name = $1', [name]);
-
-        if (check.length > 0) {
-            console.error('Error duplicate');
-            return res.send({
-                message:'This name already exist, please use another.'
-            });
-        }
+        const prev_name = previous.name;
+        const prev_image = previous.cover_art_url;
 
         if (name && name === prev_name) {
             return res.status(409).send('Duplicate record for name.');
         }
 
-
         let cover_art_url = prev_image;
 
-        
         if (req.file) {
             cover_art_url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
@@ -166,7 +171,7 @@ genre.patch('/:id/new', requireAdmin, upload.single('newImage'), async (req, res
         }
 
         await db.one(
-            'UPDATE genres SET name = $1, cover_art_url = $2 WHERE id = $3',
+            'UPDATE genres SET name = $1, cover_art_url = $2 WHERE id = $3 RETURNING name, cover_art_url',
             [name || prev_name, cover_art_url, id]
         );
 

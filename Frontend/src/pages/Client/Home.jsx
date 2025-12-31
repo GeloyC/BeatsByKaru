@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import NavigationBar from '../../components/NavigationBar'
 import HeaderGenres from '../../components/HeaderGenres'
 import ProjectSnippet from '../../components/ProjectSnippet'
@@ -8,6 +8,7 @@ import Footer from '../../components/Footer'
 import { Link } from 'react-router-dom'
 
 function Home() {
+    const [showArrow, setShowArrow] = useState(false);
 
     return (
         <div className='relative flex flex-col justify-start w-full min-h-screen '>
@@ -27,12 +28,12 @@ function Home() {
                         <span className='flex justify-center text-[#03f8c5] text-[193px] leading-[9rem] font-bold whitespace-nowrap'>BEATS BY KARU</span>
 
                         <div className='flex flex-row justify-between items-center'>
-                            <div className='flex gap-2 justify-center'>
-                                <Link to='/music' className='flex items-center gap-3 type-button bg-[#03f8c5] font-bold px-4 py-1 hover:px-6 hover:bg-[#EADCA7] active:px-4 transition-all duration-200'>
-                                <span>Explore Music Collection</span>
-                                <div className='size-8'>
-                                    <img src="/src/assets/icons/arrow_corner_down.png" alt="arrow_down" />
-                                </div>
+                            <div onMouseEnter={() => setShowArrow(true)} onMouseLeave={() => setShowArrow(false)} className='flex gap-2 justify-center'>
+                                <Link to='/music' className='flex items-center gap-3 type-button bg-[#03f8c5] font-bold p-3 hover:px-5 hover:bg-[#EADCA7] active:px-4 transition-all duration-200'>
+                                    <span>Explore Music Collection</span>
+                                    <div className={`${showArrow ? 'opacity-100 size-6' : 'opacity-0 size-0'} transition-all duration-200`}>
+                                        <img src="/src/assets/icons/arrow_corner_down.png" alt="arrow_down" />
+                                    </div>
                                 </Link>
                             </div>
 

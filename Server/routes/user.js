@@ -1,5 +1,5 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';2
 import { db } from '../data/database.js';
 
 const user = express.Router();

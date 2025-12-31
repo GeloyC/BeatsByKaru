@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useLicense } from '../../../Hooks/LicenseHook';
 
+
 const ManageLicense = () => {
     const base_url = 'http://localhost:5000';
     const queryClient = useQueryClient();
@@ -65,6 +66,7 @@ const ManageLicense = () => {
     }
 
 
+    // queries and shit
     const { mutate: createLicense } = useMutation({
         mutationFn: async (formData) => {
             const response = await axios.post(`${base_url}/license/add`, formData, { withCredentials: true });
@@ -81,6 +83,26 @@ const ManageLicense = () => {
         }
     });
 
+
+    const { mutate: deleteLicense } = useMutation({
+        mutationFn: async (license_id) => {
+            try {
+                const response = await axios.delete(`${base_url}/license/remove/${license_id}`, {
+                    withCredentials: true
+                });
+
+                console.log(response.data);
+                return response.data;
+            } catch(err) {
+                console.error('Failed to delete license: ', err);
+            }
+        },
+        onSuccess: () => {
+            setInputOpen(false);
+            queryClient.invalidateQueries(['license'])
+            // alert('Deleted license successfully!');
+        }
+    });
 
     const { data: license = [], isLoading } = useLicense();
 
@@ -102,7 +124,7 @@ const ManageLicense = () => {
                         
                         <div className='flex items-center gap-3 px-3 py-2  w-full'>
                             {inputOpen === lic.id ? (
-                                <input type="text" value={newLicense || lic.license || ''} onChange={(e) => setNewLicense(e.target.value)} className='px-3 py-1 rounded-[5px] bg-none border border-[#CCC]'/>
+                                <input type="text" value={newLicense || lic.license || ''} onChange={(e) => setNewLicense(e.target.value)} className='px-3 py-1 rounded-[5px] bg-[#f2e9c9] focus:outline-[#d2b545]'/>
                             ) : (
                                 <a href={lic.document_url} target='_blank' className='font-bold hover:underline active:text-[#03f8c5]'>{lic.license}</a>
                             )}
@@ -116,17 +138,17 @@ const ManageLicense = () => {
                                 {inputOpen === lic.id ? (
                                     <div className='flex items-center w-full'>
                                         <button className='px-1 opacity-50 hover:opacity-100 active:opacity-50'>Save</button>
-                                        <button onClick={() => editLicense(null)} className='px-2 opacity-50 hover:opacity-100 active:opacity-50'>Cancel</button>
+                                        <button onClick={() => {editLicense(null); setNewLicense('')}} className='px-2 opacity-50 hover:opacity-100 active:opacity-50'>Cancel</button>
                                     </div>
                                 ) : (
-                                    <button onClick={() => editLicense(lic.id)} className='flex items-center justify-center p-2 opacity-50 hover:opacity-100 active:opacity-50' title='Edit'>
+                                    <button onClick={() => {editLicense(lic.id); setNewLicense('')}} className='flex items-center justify-center p-2 opacity-50 hover:opacity-100 active:opacity-50' title='Edit'>
                                         Edit
                                     </button>
                                 )}
 
 
                                 <span className='opacity-50'>|</span>
-                                <button className='p-2 opacity-50 hover:opacity-100 active:opacity-50' title='Delete'>
+                                <button onClick={() => deleteLicense(lic.id)} className='p-2 opacity-50 hover:opacity-100 active:opacity-50' title='Delete'>
                                     Delete
                                 </button>
                             </div>

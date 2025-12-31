@@ -45,7 +45,6 @@ const AddGenre = ({ closeAddGenreWindow }) => {
         console.log('File: ', imageBlob);
 
         createGenre.mutate(imageForm);    
-        closeAddGenreWindow();
     }
 
     const resetGenre = () => {
@@ -64,19 +63,20 @@ const AddGenre = ({ closeAddGenreWindow }) => {
                 })
                 
                 console.log(response.data)
-                return response.data
+                return response.data ?? [];
             } catch (err) {
                 console.error('Error uploading file: ', err);
+                throw err;
             }
         },
         onSuccess: (data) => {
             setGenreName('');
             setImagePreview('');
             setSuccessMessage('New Genre created successfully!');
-            console.log("File URL:", data.cover_art_url);
 
             // Immediate trigger the queryKey to display changes 
             queryClient.invalidateQueries(['genre']);
+            closeAddGenreWindow();
         }, 
         onError: (err) => {
             console.log('Error uploading file ', err);

@@ -11,11 +11,20 @@ export function useGenre() {
           const response = await axios.get(`${base_url}/genre/all`, {
               withCredentials: true
           });
+
+          if (!response.data) {
+            throw new Error('No genres returned');
+          }
+
           // console.log(response.data)
-          return response.data;
+          // react-query rule is query functions should not return null/undefine
+
+          return response.data ?? [];
         } catch (err) {
             console.error('Error retreiving genre data: ', err);
+            throw err;
         }
-    }
+    }, 
+    retry: false
   })
 }
