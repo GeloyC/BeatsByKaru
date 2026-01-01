@@ -111,7 +111,7 @@ const ManageLicense = () => {
 
     return (
         <section className='flex flex-col w-full gap-4'>
-            <div className='flex items-center justify-between w-full border-b border-b-[#CCC] pb-2'>
+            <div className='flex items-center justify-between w-full border-t border-t-[#CCC] pt-2'>
                 <span className='text-[#005F60] text-[18px] font-bold'>License Type</span>
                 <button onClick={() => setIsAddLicenseOpen(true)} className='flex items-center gap-2 font-bold px-3 py-1 rounded-[5px] bg-[#03f8c5] text-[#005F60] hover:opacity-75 active:opacity-100'>
                     + Add License

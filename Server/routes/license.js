@@ -90,7 +90,7 @@ license.delete('/remove/:id', requireAdmin, async (req, res, next) => {
                 await fs.unlink(file_path);
                 console.log('Deleted: ', file_path);
             } catch (err) {
-                console.err('Failed to delete: ', err);
+                console.error('Failed to delete: ', err);
             }
         };
 

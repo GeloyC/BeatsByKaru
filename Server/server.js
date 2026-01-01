@@ -13,6 +13,7 @@ import { sessionStore } from './data/database.js';
 import user from './routes/user.js';
 import genre from './routes/genre.js';
 import license from './routes/license.js';
+import audio from './routes/audio.js';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ const __dirname = path.dirname(__filename);
 // static file path
 app.use('/uploads', express.static(path.join(__dirname, 'Files/GenreCover')));
 app.use('/documents', express.static(path.join(__dirname, 'Files/License')));
+app.use('/audio-uploads', express.static(path.join(__dirname, 'Files/Audio')));
 
 
 const PORT = 5000;
@@ -53,6 +55,8 @@ app.use(session({
 app.use('/user', user);
 app.use('/genre', genre);
 app.use('/license', license);
+app.use('/audio', audio);
+
 
 app.get('/', (req, res) => {
     res.send("Expressing....");

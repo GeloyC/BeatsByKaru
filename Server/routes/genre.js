@@ -48,12 +48,6 @@ genre.post('/new', requireAdmin, upload.single('cover_art'), async (req, res, ne
             [ name, cover_art_url ]
         );
 
-        // return res.send({
-        //     id: result.id,
-        //     name,
-        //     cover_art_url,
-        //     message: 'Genre created successfully!'
-        // });
 
         return res.status(201).json({
             ...result,
