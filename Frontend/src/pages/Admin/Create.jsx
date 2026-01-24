@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
 import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
 
 import { AudioPeakExtract } from '../../../util/AudioPeakExtract.js'
 import { useGenre } from '../../../Hooks/GenreHook'
 import { useLicense } from '../../../Hooks/LicenseHook.js'
+import { useMutation } from '@tanstack/react-query'
 
 const Create = () => {
+    const base_url = 'http://localhost:5000';
+
     const [isTypeSelected, setIsTypeSelected] = useState('');
     const [licenseSelected, setLicenseSelected] = useState(null);
 
@@ -20,11 +24,15 @@ const Create = () => {
     const [taggedAudioPreview, setTaggedAudioPreview] = useState('');
 
     const [coverArt, setCoverArt] = useState(null);
+    const [coverArtBlob, setCoverArtBlob] = useState(null);
 
     // States for input values --> title, Key, BPM
     const [title, setTitle] = useState('');
     const [bpm, setBpm] = useState('');
     const [key, setKey] = useState('');
+
+    const audioRef = useRef(null);
+    const [duration, setDuration] = useState(null);
 
     const handlePreviewTaggedAudio = (e) => {
         const audioFile = e.target.files[0];
@@ -53,10 +61,22 @@ const Create = () => {
 
         reader.readAsDataURL(audioFile);
         setUntaggedAudioBlob(audioFile);
-        setUntaggedAudioName(audioFile.name);
+        setUntaggedAudioName(audioFile.name); 
 
-        console.log('asdasd')
+        
     };
+
+
+    // get the duration of the audio
+    const getDuration = () => {
+        const audio = audioRef.current;
+
+        const audioDuration = Math.floor(audio.duration);
+        setDuration(audioDuration);
+
+        console.log('Audio Duration: ', audioDuration);
+        console.log('Audio actual duration: ', audio.duration);
+    }
 
     
     // IMAGE PREVIEW COVER ART
@@ -70,27 +90,88 @@ const Create = () => {
             setCoverArt(reader.result)
         }
         reader.readAsDataURL(imageFile)
+        setCoverArtBlob(imageFile);
     }
 
 
     const { data: genres = [] } = useGenre();
     const { data: license = [] } = useLicense();
 
-    const [selectedGenre, setSelectedGenre] = useState(genres);
-
+    const [selectedGenres, setSelectedGenres] = useState([]);
     const HandleGenreChange = (e) => {
-        const { value, checked } = e.target;
-        setSelectedGenre((prev) => 
-            checked ? [...prev, value] : prev.filter((genre) => genre !== value)
+        const value = Number(e.target.value);
+        const checked = e.target.checked;
+        
+        setSelectedGenres((prev) => 
+            checked 
+                ? [...prev, value] 
+                : prev.filter((genre) => genre !== value)
         );
-    };
 
+        console.log('selected value: ', value);
+    };
+    
+    useEffect(() => {
+        console.log('Genres: ', selectedGenres);
+        console.log('License: ', licenseSelected);
+    }, [selectedGenres, licenseSelected]);
 
     // uploading the data
     const handleUpload = (e) => {
         // TODO: find a way to upload three files at the same time
+        e.preventDefault();
+
+        
+        const audioForm = new FormData();
+
+        audioForm.append('title', title);
+        audioForm.append('untagged', untaggedAudioBlob);
+        audioForm.append('tagged', taggedAudioBlob);
+        audioForm.append('cover_art', coverArtBlob);
+        audioForm.append('audio_key', key);
+        audioForm.append('bpm', bpm);
+        audioForm.append('duration', duration);
+        audioForm.append('license_id', licenseSelected);
+        console.log('Sent license: ', licenseSelected);
+        selectedGenres.forEach(genre_id => {
+            audioForm.append('genre_id[]', genre_id);
+            console.log('Sending: ', genre_id)
+        });
+        
+        trackUpload(audioForm);
     };
 
+
+    const { mutate: trackUpload } = useMutation({
+        mutationFn: async (FormData) => {
+            try {
+                const response = await axios.post(`${base_url}/audio/upload-single`, FormData , {
+                    withCredentials: true
+                });
+    
+                return response.data
+            } catch (err) {
+                console.log('Error uploading audio: ', err)
+            }
+        }, onSuccess: () => {
+            setTitle('');
+            setUntaggedAudioBlob(null);
+            setUntaggedAudioName('');
+            setUntaggedAudioPreview(null);
+            setTaggedAudioBlob(null);
+            setTaggedAudioName('');
+            setTaggedAudioPreview(null);
+            setCoverArt(null);
+            setCoverArtBlob(null);
+            setBpm('');
+            setKey('');
+            setDuration(null);
+            setSelectedGenres([]);
+            setLicenseSelected(null);
+
+            alert(`You have successfully uploaded the audio title '${title}. Congratulations!'`);
+        }
+    });
 
     return (
         <>
@@ -123,7 +204,7 @@ const Create = () => {
                             </div>
 
                             {isTypeSelected === 'Single' && (
-                                <div className='flex flex-col py-5 w-[700px] items-start justify-start gap-5'>
+                                <form onSubmit={handleUpload} className='flex flex-col py-5 w-[700px] items-start justify-start gap-5'>
                                     <div className='flex flex-col w-full'>
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Title</span>
                                         <input type="text" placeholder='Add a title' 
@@ -163,7 +244,7 @@ const Create = () => {
                                             ) : (
                                                 <div className='flex flex-col gap-1 items-center p-2 w-full'>
                                                     <span>{untaggedAudioName}</span>
-                                                    <audio className='flex w-full' src={untaggedAudioPreview} controls/>
+                                                    <audio ref={audioRef} onLoadedMetadata={getDuration} className='flex w-full' src={untaggedAudioPreview} controls/>
                                                 </div>
                                             )}
 
@@ -209,9 +290,9 @@ const Create = () => {
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Select a genre for this track (You select all that applies)</span>
                                         <div className='flex w-full gap-1 items-center justify-start p-2 border-dashed border-2 border-[#CCC] rounded-[5px]'>
                                             {genres.map((genre) => (
-                                                <label key={genre.id} htmlFor={`genre_${genre.name}`} className={`${selectedGenre.includes(genre.name) ? 'bg-[#03f8c5]' : 'bg-[#FFF]'} px-2 py-0.5 rounded-[5px] border border-[#1E1E1E] cursor-pointer`}>
+                                                <label key={genre.id} htmlFor={`genre_${genre.id}`} className={`${selectedGenres.includes(genre.id) && 'bg-[#03f8c5]'} px-2 py-0.5 rounded-[5px] border border-[#1E1E1E] cursor-pointer`}>
                                                     {genre.name}
-                                                    <input type="checkbox" name="genre_group" id={`genre_${genre.name}`} value={genre.name} onChange={HandleGenreChange} hidden/>
+                                                    <input type="checkbox" name="genre_group" id={`genre_${genre.id}`} value={genre.id} onChange={HandleGenreChange} hidden/>
                                                 </label>
                                             ))}
                                         </div>
@@ -240,7 +321,7 @@ const Create = () => {
 
                                         <button className='px-4 py-1 border border-[#141414] rounded-[5px] hover:opacity-50 active:opacity-100'>Cancel</button>
                                     </div>
-                                </div>
+                                </form>
                             )}
 
                             {isTypeSelected === 'Beat Tape' && (

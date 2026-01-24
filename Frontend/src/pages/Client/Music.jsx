@@ -27,7 +27,7 @@ const Music = () => {
 
             <div className='flex gap-2 overflow-wrap:break-word'>
               {genres.map((genre) => (
-                <Link  className='p-1 px-3 rounded-[10px] text-[18px] text-[#FFF] border border-[#FFF] hover:bg-[#2A2A2A] active:bg-[#141414]'>{genre.name}</Link>
+                <Link key={genre.id} className='p-1 px-3 rounded-[10px] text-[18px] text-[#FFF] border border-[#FFF] hover:bg-[#2A2A2A] active:bg-[#141414]'>{genre.name}</Link>
               ))}
                 <Link to='/music/all'  className='p-1 px-3 rounded-[10px] text-[18px] text-[#FFF] border border-[#FFF] hover:bg-[#2A2A2A] active:bg-[#141414]'>Explore All</Link>
             </div>

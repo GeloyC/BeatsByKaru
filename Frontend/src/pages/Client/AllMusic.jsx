@@ -63,14 +63,13 @@ const AllMusic = () => {
                 </div>
 
 
+                <label className='flex flex-row items-start w-full text-[24px] text-[#141414] font-bold'>Beat Tapes</label>
                 <table className='flex flex-col w-full text-[#FFF]'>
-                    <span className='text-[24px] text-[#141414] font-bold'>Beat Tapes</span>
                     <thead className='flex w-full'>
-                        <tr className='grid grid-cols-[5%_5%_30%_20%_10%_10%_5%_15%] place-items-center justify-items-center w-full border-b border-b-[#BABABA] py-2 text-[#141414]'>
+                        <tr className='grid grid-cols-[5%_5%_40%_15%_15%_5%_15%] place-items-center justify-items-center w-full border-b border-b-[#BABABA] py-2 text-[#141414]'>
                             <th>Bundle</th>
                             <th></th>
                             <th>Title</th>
-                            <th></th>
                             <th>Duration</th>
                             <th>Key</th>
                             <th>BPM</th>
@@ -82,7 +81,7 @@ const AllMusic = () => {
 
                         {/* Set a map index or assign audio_id to track which audio is being hovered */}
                         {/* This block is for beat tapes showing in a list format but displays in more details */}
-                        <tr onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)} className='grid grid-cols-[5%_5%_30%_20%_10%_10%_5%_15%] w-full  py-2 place-items-center justify-items-center text-[14px] text-[#141414] hover:bg-[#EEE] cursor-pointer transition-all duration-100'>
+                        <tr onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)} className='grid grid-cols-[5%_5%_40%_15%_15%_5%_15%] w-full  py-2 place-items-center justify-items-center text-[14px] text-[#141414] hover:bg-[#EEE] cursor-pointer transition-all duration-100'>
                             <td className='flex items-center justify-center w-full'>
                                 <img src="/src/assets/Image/sample_bundle_art.jpg" alt="bundle_image" className='size-10'/>
                             </td>
@@ -92,15 +91,12 @@ const AllMusic = () => {
                                 </button>
                             </td>
                             <td className='px-2 max-w-[400px] truncate'>Title of the audio which is super super duper long as long as talong</td>
-                            <td>
-                                [ Add the waveform visual here ]
-                            </td>
                             <td>1:00</td>
                             <td>A min</td>
                             <td>80</td>
                             <td className='flex w-full px-2'>
-                                <button className='flex items-center justify-center w-full gap-2 px-2 py-2 bg-[#03f8c5] rounded-[8px] hover:bg-[#EADCA7] hover:text-[#FFF] active:bg-[#03f8c5] transition-all duration-100'>
-                                    <span className='text-[#141414] text-[16px] whitespace-nowrap'>₱ 1000.00</span>
+                                <button className='flex items-center justify-center w-full gap-2 px-2 py-2 bg-[#03f8c5] text-[#141414] text-[16px] whitespace-nowrap rounded-[8px] hover:bg-[#EADCA7] active:bg-[#03f8c5] transition-all duration-100'>
+                                    ₱ 1000.00
                                 </button>
                             </td>
                         </tr>
@@ -139,10 +135,7 @@ const AllMusic = () => {
                                 <span className='text-[#656565] text-[16px]'>30 Beat Tapes</span>
                             </div>
                         </div>
-
                     </div>
-
-
                 </div>
             </div>
             
