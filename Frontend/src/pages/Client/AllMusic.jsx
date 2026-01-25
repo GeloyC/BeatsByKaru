@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
+import { useQuery,useQueryClient } from '@tanstack/react-query';
 import NavigationBar from '../../components/NavigationBar';
 import Footer from '../../components/Footer';
+import { useAudio } from '../../../Hooks/AudioHooks';
 
 const AllMusic = () => {
     const [selected, setSelected] = useState('');
@@ -12,6 +14,39 @@ const AllMusic = () => {
     const handleDisplaySelection = () => {
         setSelectionDisplayed(prev => !prev)
     }
+
+    const [playingId, setPlayingId] = useState(null);
+    const audioRef = useRef({});
+
+    //to play/pause audio
+    const toggleAudioPlay = (audio_id) => {
+        try {
+            let audio = audioRef.current[audio_id];
+            if (!audio) return;
+
+            let prev_audio_id = playingId;
+            
+            if (prev_audio_id === audio_id) {
+                audio.pause();
+                setPlayingId(null);
+
+                return;
+            } 
+
+            if (prev_audio_id !== null && audioRef.current[prev_audio_id]) {
+                audioRef.current[prev_audio_id].pause();
+            }
+
+            audio.play();
+            setPlayingId(audio_id);
+
+            console.log('Playing: ', audio_id)
+        } catch (err) {
+            console.error('Error playing audio: ', err);
+        }
+    }
+
+    const {data: audios = [] } = useAudio();
 
     return (
         <div className='relative w-full justify-center items-start min-h-screen bg-[#FFF]'>
@@ -63,46 +98,42 @@ const AllMusic = () => {
                 </div>
 
 
-                <label className='flex flex-row items-start w-full text-[24px] text-[#141414] font-bold'>Beat Tapes</label>
-                <table className='flex flex-col w-full text-[#FFF]'>
-                    <thead className='flex w-full'>
-                        <tr className='grid grid-cols-[5%_5%_40%_15%_15%_5%_15%] place-items-center justify-items-center w-full border-b border-b-[#BABABA] py-2 text-[#141414]'>
-                            <th>Bundle</th>
-                            <th></th>
-                            <th>Title</th>
-                            <th>Duration</th>
-                            <th>Key</th>
-                            <th>BPM</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
+                <span className='flex flex-row items-start w-full text-[24px] text-[#141414] font-bold'>Beat Tapes</span>
+                <div className='grid grid-cols-[5%_5%_20%_25%_10%_10%_10%_15%] place-items-start w-full h-[30px] border-b border-[#BABABA]'>
+                    {/* Headers */}
+                    <div className='text-[#6A6A6A] text-[14px]'>BEAT TAPE</div>
+                    <div className='text-[#6A6A6A] text-[14px]'></div>
+                    <div className='text-[#6A6A6A] text-[14px]'>TITLE</div>
+                    <div className='text-[#6A6A6A] text-[14px]'>Audio</div>
+                    <div className='text-[#6A6A6A] text-[14px]'>DURATION</div>
+                    <div className='text-[#6A6A6A] text-[14px]'>KEY</div>
+                    <div className='text-[#6A6A6A] text-[14px]'>BPM</div>
+                    <div className='text-[#6A6A6A] text-[14px]'>BUY</div>
+                </div>
+                
+                {/* Contents */}
+                <div className='flex flex-col h-auto w-full'>
+                    {audios.map((audio) => (
+                    <div key={audio.id} className='grid grid-cols-[5%_5%_20%_25%_10%_10%_10%_15%] place-items-center justify-items-start w-full h-auto py-2 border-b border-[#DDD]'>
+                        <div className='flex items-center justify-center overflow-hidden w-full'>
+                            <img src={audio.cover_art_url} alt="" className='size-10 object-cover'/>
+                        </div>
 
-                    <tbody>
+                        <div className='flex items-center justify-center overflow-hidden w-full opacity-25 hover:opacity-100 active:opacity-25 cursor-pointer'>
+                            <button onClick={() => toggleAudioPlay(audio.id)}>
+                                <img src="/src/assets/icons/play_black.png" alt="" className='size-8 object-cover'/>
+                            </button>
+                        </div>
+                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.title}</span>
+                        <audio ref={(aud) => {audioRef.current[audio.id] = aud}} src={audio.audio_tagged_url} controls></audio>
+                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.duration}</span>
+                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.audio_key}</span>
+                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.bpm}</span>
 
-                        {/* Set a map index or assign audio_id to track which audio is being hovered */}
-                        {/* This block is for beat tapes showing in a list format but displays in more details */}
-                        <tr onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)} className='grid grid-cols-[5%_5%_40%_15%_15%_5%_15%] w-full  py-2 place-items-center justify-items-center text-[14px] text-[#141414] hover:bg-[#EEE] cursor-pointer transition-all duration-100'>
-                            <td className='flex items-center justify-center w-full'>
-                                <img src="/src/assets/Image/sample_bundle_art.jpg" alt="bundle_image" className='size-10'/>
-                            </td>
-                            <td className='flex justify-center items-center w-full'>
-                                <button className='w-full h-full flex items-center justify-center'>
-                                    <img src={`/src/assets/icons/play_${!isHovering ? 'black' : 'teal'}.png`} alt="play-button" className='size-6'/>
-                                </button>
-                            </td>
-                            <td className='px-2 max-w-[400px] truncate'>Title of the audio which is super super duper long as long as talong</td>
-                            <td>1:00</td>
-                            <td>A min</td>
-                            <td>80</td>
-                            <td className='flex w-full px-2'>
-                                <button className='flex items-center justify-center w-full gap-2 px-2 py-2 bg-[#03f8c5] text-[#141414] text-[16px] whitespace-nowrap rounded-[8px] hover:bg-[#EADCA7] active:bg-[#03f8c5] transition-all duration-100'>
-                                    ₱ 1000.00
-                                </button>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
+                    </div>
+                    ))}
+                </div>
+                
 
                 <div className='flex flex-col w-full items-start gap-2 py-[2rem]'>
                     <span className='text-[24px] text-[#141414] font-bold'>Bundles</span>

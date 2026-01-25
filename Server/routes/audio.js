@@ -2,7 +2,6 @@ import express from 'express';
 import multer from 'multer';
 import { db } from '../data/database.js';
 import { requireAdmin } from './user.js';
-import { getAudioPeaks } from 'node-audio-peaks';
 
 const audio = express.Router();
 
@@ -105,7 +104,18 @@ audio.post('/upload-single', requireAdmin,
 })
 
 
-// audio
+audio.get('/all', async (req, res) => {
+    try {
+        const audios = await db.any(`
+            SELECT * FROM audio    
+        `);
+
+        return res.status(200).json(audios);
+
+    } catch (err) {
+        console.error('Failed to retrieve audio data: ', err);
+    }
+});
 
 
 export default audio;
