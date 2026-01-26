@@ -11,7 +11,7 @@ import App from './App.jsx'
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
       <QueryClientProvider client={queryClient} >
           <BrowserRouter>
             <UserProvider>
@@ -20,5 +20,5 @@ createRoot(document.getElementById('root')).render(
             </UserProvider>
           </BrowserRouter>
       </QueryClientProvider>
-  </StrictMode>
+  // </StrictMode>
 )

@@ -104,18 +104,37 @@ audio.post('/upload-single', requireAdmin,
 })
 
 
-audio.get('/all', async (req, res) => {
+audio.get('/all', async (req, res, next) => {
     try {
         const audios = await db.any(`
-            SELECT * FROM audio    
+            SELECT
+                a.*,
+                COALESCE(
+                    json_agg(
+                        json_build_object(
+                            'id', g.id,
+                            'name', g.name
+                        )
+                    ) FILTER (WHERE g.id IS NOT NULL),
+                    '[]'
+                ) AS genres
+            FROM audio a
+            LEFT JOIN audio_genres ag
+                ON ag.audio_id = a.id
+            LEFT JOIN genres g
+                ON g.id = ag.genre_id
+            GROUP BY a.id
+            ORDER BY a.id;
         `);
 
         return res.status(200).json(audios);
 
     } catch (err) {
+        next(err)
         console.error('Failed to retrieve audio data: ', err);
     }
 });
+
 
 
 export default audio;

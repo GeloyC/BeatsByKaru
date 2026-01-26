@@ -1,14 +1,17 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
+import { Link, useParams } from 'react-router-dom';
 import { useQuery,useQueryClient } from '@tanstack/react-query';
 import NavigationBar from '../../components/NavigationBar';
 import Footer from '../../components/Footer';
 import { useAudio } from '../../../Hooks/AudioHooks';
+import { useGenre } from '../../../Hooks/GenreHook';
 
 const AllMusic = () => {
     const [selected, setSelected] = useState('');
 
-    // Use this state to hover a list depending on audio_id or audio index
-    const [isHovering, setIsHovering] = useState(false);
+    const { genre } = useParams();
+    const decodedGenre = decodeURIComponent(genre).toLowerCase();
+
 
     const [selectionDisplayed, setSelectionDisplayed] = useState(false);
     const handleDisplaySelection = () => {
@@ -39,14 +42,39 @@ const AllMusic = () => {
 
             audio.play();
             setPlayingId(audio_id);
-
-            console.log('Playing: ', audio_id)
         } catch (err) {
             console.error('Error playing audio: ', err);
         }
     }
 
     const {data: audios = [] } = useAudio();
+    const {data: genres = [] } = useGenre();
+
+    const filteredGenre = useMemo(() => {
+        if (decodedGenre === 'all') {
+            return audios
+        }
+
+        return audios.filter(audio => {
+            return audio.genres?.some(gen => 
+                gen?.name.toLowerCase() === decodedGenre
+            );
+        });
+    }, [audios, decodedGenre])
+
+    console.log('Filter: ', filteredGenre);
+    console.log('Audios: ', audios);
+
+
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    
 
     return (
         <div className='relative w-full justify-center items-start min-h-screen bg-[#FFF]'>
@@ -61,16 +89,17 @@ const AllMusic = () => {
             <div className='flex flex-col justify-start items-center w-full px-[8rem] min-h-[750px] gap-4 '>
                 <div className='flex flex-col w-full items-start justify-center py-[2rem] gap-5'>
                     <div className='relative flex items-center justify-center gap-4'>
-                        <div className='text-[#141414] text-[48px] font-bold leading-[35px]'>Hip-Hop</div>
+                        <div className='text-[#141414] text-[48px] font-bold leading-[35px]'>{genre}</div>
                         <button onClick={handleDisplaySelection} className='flex items-center justify-center'>
                             <img src="/src/assets/icons/arrow-down-sign-to-navigate.png" alt="dropdown-arrow"  className={`${selectionDisplayed ? 'rotate-180' : 'rotate-0'} size-5`}/>
                         </button>
 
                         { selectionDisplayed && (
                             <div className='absolute top-14 left-0 flex flex-col items-start w-[200px] max-h-[300px] overflow-y-scroll scrollbar-thin bg-[#FFF] border border-[#BABABA] rounded-[5px]'>
-                                <button className='flex px-5 py-1 hover:bg-[#dddddd] active:bg-[#FFF] w-full'>Selection 1</button>
-                                <button className='flex px-5 py-1 hover:bg-[#dddddd] active:bg-[#FFF] w-full'>Selection 2</button>
-                                <button className='flex px-5 py-1 hover:bg-[#dddddd] active:bg-[#FFF] w-full'>Selection 3</button>
+                                {genres.map((genre) => (
+                                    <Link to={`/music/genre/${genre.name}`} onClick={() => setSelectionDisplayed(false)} key={genre.id} className='flex px-5 py-1 hover:bg-[#dddddd] active:bg-[#FFF] w-full'>{genre.name}</Link>
+                                ))}
+                                <Link to={`/music/genre/All`} onClick={() => setSelectionDisplayed(false)} className='flex px-5 py-1 hover:bg-[#dddddd] active:bg-[#FFF] w-full'>All</Link>
                             </div>
                         )}
                     </div>
@@ -113,25 +142,30 @@ const AllMusic = () => {
                 
                 {/* Contents */}
                 <div className='flex flex-col h-auto w-full'>
-                    {audios.map((audio) => (
-                    <div key={audio.id} className='grid grid-cols-[5%_5%_20%_25%_10%_10%_10%_15%] place-items-center justify-items-start w-full h-auto py-2 border-b border-[#DDD]'>
-                        <div className='flex items-center justify-center overflow-hidden w-full'>
-                            <img src={audio.cover_art_url} alt="" className='size-10 object-cover'/>
+                        {filteredGenre?.map((audio) => (
+                        <div key={audio.id} className='grid grid-cols-[5%_5%_20%_25%_10%_10%_10%_15%] place-items-center justify-items-start w-full h-auto py-2 border-b border-[#DDD]'>
+                            <div className='flex items-center justify-center overflow-hidden w-full'>
+                                <img src={audio.cover_art_url} alt="" className='size-10 object-cover'/>
+                            </div>
+    
+                            <div className='flex items-center justify-center overflow-hidden w-full opacity-25 hover:opacity-100 active:opacity-25 cursor-pointer'>
+                                <button onClick={() => toggleAudioPlay(audio.id)}>
+                                    <img src="/src/assets/icons/play_black.png" alt="" className='size-8 object-cover'/>
+                                </button>
+                            </div>
+                            <span className='flex flex-col w-full text-[16px] text-[#141414]'>
+                                <span className='w-[200px] truncate font-bold'>{audio.title}</span>
+                                <span className='text-[14px] text-[#6A6A6A]'>
+                                    {audio.genres?.map(genre => ( genre.name )).join(', ')}
+                                </span>
+                            </span>
+                            <audio ref={(aud) => {audioRef.current[audio.id] = aud}} src={audio.audio_tagged_url} controls></audio>
+                            <span className='flex w-full text-[16px] text-[#141414]'>{formatTime(audio.duration)}</span>
+                            <span className='flex w-full text-[16px] text-[#141414]'>{audio.audio_key}</span>
+                            <span className='flex w-full text-[16px] text-[#141414]'>{audio.bpm}</span>
+    
                         </div>
-
-                        <div className='flex items-center justify-center overflow-hidden w-full opacity-25 hover:opacity-100 active:opacity-25 cursor-pointer'>
-                            <button onClick={() => toggleAudioPlay(audio.id)}>
-                                <img src="/src/assets/icons/play_black.png" alt="" className='size-8 object-cover'/>
-                            </button>
-                        </div>
-                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.title}</span>
-                        <audio ref={(aud) => {audioRef.current[audio.id] = aud}} src={audio.audio_tagged_url} controls></audio>
-                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.duration}</span>
-                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.audio_key}</span>
-                        <span className='flex w-full text-[16px] text-[#141414]'>{audio.bpm}</span>
-
-                    </div>
-                    ))}
+                        ))}
                 </div>
                 
 

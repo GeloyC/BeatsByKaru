@@ -24,6 +24,7 @@ function App() {
         <Route path="/" element={<Home/>} />
         <Route path="music" element={<Music />} />
         <Route path='music/all' element={<AllMusic />} />
+        <Route path='music/genre/:genre' element={<AllMusic />} />
         <Route path="projects" element={ <Projects /> }/>
 
         {/* Admin Routes */}

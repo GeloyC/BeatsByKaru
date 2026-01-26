@@ -244,7 +244,7 @@ const Create = () => {
                                             ) : (
                                                 <div className='flex flex-col gap-1 items-center p-2 w-full'>
                                                     <span>{untaggedAudioName}</span>
-                                                    <audio ref={audioRef} onLoadedMetadata={getDuration} className='flex w-full' src={untaggedAudioPreview} controls/>
+                                                    <audio ref={audioRef} onLoadedMetadata={getDuration} onDurationChange={getDuration} className='flex w-full' src={untaggedAudioPreview} controls/>
                                                 </div>
                                             )}
 
