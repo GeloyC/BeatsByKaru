@@ -163,7 +163,11 @@ const AllMusic = () => {
                             <span className='flex w-full text-[16px] text-[#141414]'>{formatTime(audio.duration)}</span>
                             <span className='flex w-full text-[16px] text-[#141414]'>{audio.audio_key}</span>
                             <span className='flex w-full text-[16px] text-[#141414]'>{audio.bpm}</span>
-    
+                            <span className='flex w-full text-[16px] text-[#141414]'>
+                                {new Intl.NumberFormat('en-PH', {
+                                    style: 'currency',
+                                    currency: 'PHP'
+                                }).format(audio.price)}</span>
                         </div>
                         ))}
                 </div>

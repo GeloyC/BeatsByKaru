@@ -49,7 +49,7 @@ audio.post('/upload-single', requireAdmin,
     ]), async (req, res, next) => {
 
     try {
-        const { title, duration, audio_key, bpm, license_id, genre_id } = req.body;
+        const { title, duration, audio_key, bpm, license_id, genre_id, price } = req.body;
 
         const audio_url_filename = req.files.untagged[0].filename;
         const audio_tagged_filename = req.files.tagged[0].filename;
@@ -73,11 +73,11 @@ audio.post('/upload-single', requireAdmin,
         
         const upload = await db.one(`
             INSERT INTO audio 
-                (title, audio_url, cover_art_url, audio_tagged_url, duration, audio_key, bpm, license_id) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                (title, audio_url, cover_art_url, audio_tagged_url, duration, audio_key, bpm, license_id, price) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 RETURNING id, title; 
             `,
-            [ title,audio_url, cover_art_url, audio_tagged_url, duration, audio_key, bpm, license_id ]
+            [ title,audio_url, cover_art_url, audio_tagged_url, duration, audio_key, bpm, license_id, price ]
         );
 
         console.log('Result upload.id: ', upload.id);

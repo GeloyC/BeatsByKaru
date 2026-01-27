@@ -30,6 +30,8 @@ const Create = () => {
     const [title, setTitle] = useState('');
     const [bpm, setBpm] = useState('');
     const [key, setKey] = useState('');
+    const [price, setPrice] = useState(0);
+
 
     const audioRef = useRef(null);
     const [duration, setDuration] = useState(null);
@@ -132,11 +134,11 @@ const Create = () => {
         audioForm.append('bpm', bpm);
         audioForm.append('duration', duration);
         audioForm.append('license_id', licenseSelected);
-        console.log('Sent license: ', licenseSelected);
         selectedGenres.forEach(genre_id => {
             audioForm.append('genre_id[]', genre_id);
             console.log('Sending: ', genre_id)
         });
+        audioForm.append('price', price);
         
         trackUpload(audioForm);
     };
@@ -279,7 +281,7 @@ const Create = () => {
 
                                         <div className='flex flex-col w-full'>
                                             <span className='font-bold text-[#1E1E1E] opacity-50'>BPM</span>
-                                            <input type="text" placeholder="Enter BPM" 
+                                            <input type="number" placeholder="Enter BPM" 
                                                 value={bpm} onChange={(e) => setBpm(e.target.value)}
                                                 className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'
                                             />
@@ -288,9 +290,9 @@ const Create = () => {
 
                                     <div className='flex flex-col w-full items-start justify-center'>
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Select a genre for this track (You select all that applies)</span>
-                                        <div className='flex w-full gap-1 items-center justify-start p-2 border-dashed border-2 border-[#CCC] rounded-[5px]'>
+                                        <div className='flex w-full gap-1 items-center justify-center p-2 border-dashed border-2 border-[#CCC] rounded-[5px]'>
                                             {genres.map((genre) => (
-                                                <label key={genre.id} htmlFor={`genre_${genre.id}`} className={`${selectedGenres.includes(genre.id) && 'bg-[#03f8c5]'} px-2 py-0.5 rounded-[5px] border border-[#1E1E1E] cursor-pointer`}>
+                                                <label key={genre.id} htmlFor={`genre_${genre.id}`} className={`${selectedGenres.includes(genre.id) && 'bg-[#03f8c5]'} px-2 py-0.5 rounded-[5px] border border-[#1E1E1E] cursor-pointer hover:opacity-75`}>
                                                     {genre.name}
                                                     <input type="checkbox" name="genre_group" id={`genre_${genre.id}`} value={genre.id} onChange={HandleGenreChange} hidden/>
                                                 </label>
@@ -314,6 +316,16 @@ const Create = () => {
                                         ))}
                                     </div>
 
+                                    <div className='flex flex-col w-full gap-2'>
+                                        <span className='font-bold text-[#1E1E1E] opacity-50'>Set a price for this track</span>
+                                        <div className='flex w-full gap-2 items-center'>
+                                            <span className='font-bold text-[18px]'>₱</span>
+                                            <input type="text" 
+                                            value={price}
+                                            onChange={(e) => setPrice(Number(e.target.value))} className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
+                                        </div>
+                                    </div>
+
                                     
 
                                     <div className='flex items-center gap-1 w-full justify-end'>
@@ -328,7 +340,7 @@ const Create = () => {
                                 <div>
                                     Beat Tape
                                 </div>
-                            ) }
+                            )}
                         </div>
                     </div>
                 </div>
