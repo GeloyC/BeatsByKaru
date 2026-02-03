@@ -44,24 +44,24 @@ const upload = multer({
 audio.post('/upload-single', requireAdmin, 
     upload.fields([
         {name: 'untagged', maxCount: 1},
-        {name: 'tagged', maxCount: 1},
-        {name: 'cover_art', maxCount: 1}
+        {name: 'tagged', maxCount: 1}
+        // {name: 'cover_art', maxCount: 1}
     ]), async (req, res, next) => {
 
     try {
-        const { title, duration, audio_key, bpm, license_id, genre_id, price } = req.body;
+        const { title, duration, audio_key, bpm, genre_id } = req.body;
 
         const audio_url_filename = req.files.untagged[0].filename;
         const audio_tagged_filename = req.files.tagged[0].filename;
-        const cover_art_filename = req.files.cover_art[0].filename;
+        // const cover_art_filename = req.files.cover_art[0].filename;
 
 
         const audio_url = `${req.protocol}://${req.get("host")}/audio-uploads/${audio_url_filename}`; 
         const audio_tagged_url = `${req.protocol}://${req.get("host")}/audio-uploads/${audio_tagged_filename}`; 
-        const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${cover_art_filename}`;
+        // const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${cover_art_filename}`;
 
 
-        if (!req.files?.untagged || !req.files?.tagged || !req.files?.cover_art) {
+        if (!req.files?.untagged || !req.files?.tagged) {
             return res.status(400).send('Audio with tag/no tag and Cover art is required.');
         }
 
@@ -73,11 +73,11 @@ audio.post('/upload-single', requireAdmin,
         
         const upload = await db.one(`
             INSERT INTO audio 
-                (title, audio_url, cover_art_url, audio_tagged_url, duration, audio_key, bpm, license_id, price) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                (title, audio_url, audio_tagged_url, duration, audio_key, bpm) 
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id, title; 
             `,
-            [ title,audio_url, cover_art_url, audio_tagged_url, duration, audio_key, bpm, license_id, price ]
+            [ title,audio_url, audio_tagged_url, duration, audio_key, bpm ]
         );
 
         console.log('Result upload.id: ', upload.id);
@@ -123,6 +123,7 @@ audio.get('/all', async (req, res, next) => {
                 ON ag.audio_id = a.id
             LEFT JOIN genres g
                 ON g.id = ag.genre_id
+            WHERE a.status = 'pending'
             GROUP BY a.id
             ORDER BY a.id;
         `);

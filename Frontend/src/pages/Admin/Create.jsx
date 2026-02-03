@@ -1,18 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import axios from 'axios'
 import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
 
 import { AudioPeakExtract } from '../../../util/AudioPeakExtract.js'
 import { useGenre } from '../../../Hooks/GenreHook'
-import { useLicense } from '../../../Hooks/LicenseHook.js'
 import { useMutation } from '@tanstack/react-query'
+import CreateSingle from '../../components/AdminComponent/CreateSingle.jsx'
+import { useAudio } from '../../../Hooks/AudioHooks.js'
+import UnpublishedTracks from '../../components/AdminComponent/UnpublishedTracks.jsx'
 
 const Create = () => {
     const base_url = 'http://localhost:5000';
 
     const [isTypeSelected, setIsTypeSelected] = useState('');
-    const [licenseSelected, setLicenseSelected] = useState(null);
 
     // States for Audio preview
     const [untaggedAudioBlob,setUntaggedAudioBlob] = useState(null);
@@ -23,14 +24,11 @@ const Create = () => {
     const [taggedAudioName, setTaggedAudioName] = useState('');
     const [taggedAudioPreview, setTaggedAudioPreview] = useState('');
 
-    const [coverArt, setCoverArt] = useState(null);
-    const [coverArtBlob, setCoverArtBlob] = useState(null);
 
     // States for input values --> title, Key, BPM
     const [title, setTitle] = useState('');
     const [bpm, setBpm] = useState('');
     const [key, setKey] = useState('');
-    const [price, setPrice] = useState(0);
 
 
     const audioRef = useRef(null);
@@ -48,8 +46,6 @@ const Create = () => {
         reader.readAsDataURL(audioFile);
         setTaggedAudioBlob(audioFile);
         setTaggedAudioName(audioFile.name);
-
-        console.log('asdasd')
     };
 
     const handlePreviewUntaggedAudio = (e) => {
@@ -64,8 +60,6 @@ const Create = () => {
         reader.readAsDataURL(audioFile);
         setUntaggedAudioBlob(audioFile);
         setUntaggedAudioName(audioFile.name); 
-
-        
     };
 
 
@@ -80,24 +74,8 @@ const Create = () => {
         console.log('Audio actual duration: ', audio.duration);
     }
 
-    
-    // IMAGE PREVIEW COVER ART
-    const handlePreviewCoverArt = (e) => {
-        const imageFile = e.target.files[0];
-        if (!imageFile) return;
-
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            setCoverArt(reader.result)
-        }
-        reader.readAsDataURL(imageFile)
-        setCoverArtBlob(imageFile);
-    }
-
-
     const { data: genres = [] } = useGenre();
-    const { data: license = [] } = useLicense();
+    const { data: audios = [] } = useAudio();
 
     const [selectedGenres, setSelectedGenres] = useState([]);
     const HandleGenreChange = (e) => {
@@ -113,10 +91,6 @@ const Create = () => {
         console.log('selected value: ', value);
     };
     
-    useEffect(() => {
-        console.log('Genres: ', selectedGenres);
-        console.log('License: ', licenseSelected);
-    }, [selectedGenres, licenseSelected]);
 
     // uploading the data
     const handleUpload = (e) => {
@@ -129,16 +103,16 @@ const Create = () => {
         audioForm.append('title', title);
         audioForm.append('untagged', untaggedAudioBlob);
         audioForm.append('tagged', taggedAudioBlob);
-        audioForm.append('cover_art', coverArtBlob);
+        // audioForm.append('cover_art', coverArtBlob);
         audioForm.append('audio_key', key);
         audioForm.append('bpm', bpm);
         audioForm.append('duration', duration);
-        audioForm.append('license_id', licenseSelected);
+        // audioForm.append('license_id', licenseSelected);
         selectedGenres.forEach(genre_id => {
             audioForm.append('genre_id[]', genre_id);
             console.log('Sending: ', genre_id)
         });
-        audioForm.append('price', price);
+        // audioForm.append('price', price);
         
         trackUpload(audioForm);
     };
@@ -151,7 +125,7 @@ const Create = () => {
                     withCredentials: true
                 });
     
-                return response.data
+                return response.data;
             } catch (err) {
                 console.log('Error uploading audio: ', err)
             }
@@ -163,33 +137,60 @@ const Create = () => {
             setTaggedAudioBlob(null);
             setTaggedAudioName('');
             setTaggedAudioPreview(null);
-            setCoverArt(null);
-            setCoverArtBlob(null);
             setBpm('');
             setKey('');
             setDuration(null);
             setSelectedGenres([]);
-            setLicenseSelected(null);
 
             alert(`You have successfully uploaded the audio title '${title}. Congratulations!'`);
+            console.log(`
+                Uploaded audio: ${title},
+                Tagged audio: ${taggedAudioName},
+                Untagged audio: ${untaggedAudioName},
+                Duration: ${duration}
+            `);
         }
     });
 
+    const openTrackList = () => {
+        setIsTracklistOpen(prev => prev ? null : true);
+    }
+
+
+    const [audioSelected, setAudioSelected] = useState('');
+
+    // const handleSelectSingle = (audio_id) => {
+    //     setAudioSelected(prev => prev === audio_id ? audio_id : null)
+    //     console.log(audio_id);
+    //     console.log(audioSelected);
+    // }
+
+
     return (
         <>
-            <div className='relative flex flex-col min-h-screen w-full bg-[#FFF] '>
+            <div className='relative flex flex-col min-h-screen w-full bg-[#FFF]'>
                 <TopNav />
             
                 <div className='relative grid grid-cols-[15%_85%] w-full bg-[#FFF]'>
                     <SideNav /> 
 
-                    <div className='flex flex-col justify-start w-full p-5 px-[12rem] bg-[#FFF]'>
-                        <div className='flex flex-col items-start justify-between w-full gap-3'>
+                    <div className='flex items-start justify-start w-full bg-[#FFF]'>
+                        <div className='flex flex-col items-start justify-between w-full p-5 gap-3'>
                             <span className='text-[36px] font-bold'>Create</span>
                             <div className={`flex items-center w-fit ${!isTypeSelected ? "border-dashed border-2 border-[#CCC] rounded-[5px]" : ""}`}>
-                                <label htmlFor="Single" className={`${isTypeSelected === 'Single' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} active:bg-[#FFF] hover:bg-[#EEE] font-bold p-2 px-4 cursor-pointer whitespace-nowrap`} >
+                                <label htmlFor="Track" className={`${isTypeSelected === 'Track' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} active:bg-[#FFF] hover:bg-[#EEE] font-bold p-2 px-4 cursor-pointer whitespace-nowrap`} >
+                                    + Upload New Track
+                                    <input type="radio" name="type" id="Track" value={'Track'} hidden onChange={(e) => setIsTypeSelected(e.target.value)}/>
+                                </label>
+
+                                <label htmlFor="Single" className={`${isTypeSelected === 'Single' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
                                     Single
-                                    <input type="radio" name="type" id="Single" value={'Single'} hidden onChange={(e) => setIsTypeSelected(e.target.value)}/>
+                                    <input type="radio" name="type" id="Single" value={'Single'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
+                                </label>
+
+                                <label htmlFor="Bundle" className={`${isTypeSelected === 'Bundle' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
+                                    Bundle
+                                    <input type="radio" name="type" id="Bundle" value={'Bundle'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
                                 </label>
 
                                 <label htmlFor="Beat_Tape" className={`${isTypeSelected === 'Beat_Tape' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
@@ -205,10 +206,10 @@ const Create = () => {
                                 )}
                             </div>
 
-                            {isTypeSelected === 'Single' && (
+                            {isTypeSelected === 'Track' && (
                                 <form onSubmit={handleUpload} className='flex flex-col py-5 w-[700px] items-start justify-start gap-5'>
                                     <div className='flex flex-col w-full'>
-                                        <span className='font-bold text-[#1E1E1E] opacity-50'>Title</span>
+                                        <span className='font-bold text-[#1E1E1E] opacity-75'>Title</span>
                                         <input type="text" placeholder='Add a title' 
                                             value={title} onChange={(e) => setTitle(e.target.value)}
                                             className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'
@@ -217,7 +218,7 @@ const Create = () => {
 
                                     <div className='flex flex-col w-full'>
                                         <div className='flex items-center w-full justify-between'>
-                                            <span className='font-bold text-[#1E1E1E] opacity-50'>Upload Preview Audio (with Producer Tag)</span>
+                                            <span className='font-bold text-[#1E1E1E] opacity-75'>Upload Preview Audio (with Producer Tag)</span>
                                             
                                         </div>
                                         <div className='flex items-center justify-center w-full min-h-[75px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
@@ -236,7 +237,7 @@ const Create = () => {
                                     </div>
 
                                     <div className='flex flex-col w-full'>
-                                        <span className='font-bold text-[#1E1E1E] opacity-50'>Upload Downloadable Audio (No Tag/ Clean version)</span>
+                                        <span className='font-bold text-[#1E1E1E] opacity-75'>Upload Downloadable Audio (No Tag/ Clean version)</span>
                                         <div className='flex items-center justify-center w-full min-h-[75px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
                                             {!untaggedAudioPreview ? (
                                                 <label htmlFor='beatTape' className='flex w-full h-full items-center justify-center hover:bg-[#DDD] cursor-pointer active:bg-[#FFF]'>
@@ -253,7 +254,7 @@ const Create = () => {
                                         </div>
                                     </div>
 
-                                    <div className='flex flex-col w-full'>
+                                    {/* <div className='flex flex-col w-full'>
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Upload Cover Art (Must be 1:1 Ratio)</span>
                                         {!coverArt ? (
                                             <label htmlFor="cover_art" className='cursor-pointer w-full flex items-center justify-center border-dashed border-2 border-[#CCC] py-5 rounded-[5px] hover:bg-[#EEE] active:bg-[#FFF]'>
@@ -268,11 +269,11 @@ const Create = () => {
                                                 </div>
                                             </div>
                                         )}
-                                    </div>
+                                    </div> */}
 
                                     <div className='flex items-center w-full gap-2'>
                                         <div className='flex flex-col w-full'>
-                                            <span className='font-bold text-[#1E1E1E] opacity-50'>Key</span>
+                                            <span className='font-bold text-[#1E1E1E] opacity-75'>Key</span>
                                             <input type="text" placeholder="Add key like 'A min'..."
                                                 value={key} onChange={(e) => setKey(e.target.value)}
                                                 className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'
@@ -280,7 +281,7 @@ const Create = () => {
                                         </div>
 
                                         <div className='flex flex-col w-full'>
-                                            <span className='font-bold text-[#1E1E1E] opacity-50'>BPM</span>
+                                            <span className='font-bold text-[#1E1E1E] opacity-75'>BPM</span>
                                             <input type="number" placeholder="Enter BPM" 
                                                 value={bpm} onChange={(e) => setBpm(e.target.value)}
                                                 className='w-full rounded-[5px] p-2 border border-[#CCC] focus:border-[#141414] focus:outline-none'
@@ -289,7 +290,7 @@ const Create = () => {
                                     </div>
 
                                     <div className='flex flex-col w-full items-start justify-center'>
-                                        <span className='font-bold text-[#1E1E1E] opacity-50'>Select a genre for this track (You select all that applies)</span>
+                                        <span className='font-bold text-[#1E1E1E] opacity-75'>Select a genre for this track (You select all that applies)</span>
                                         <div className='flex w-full gap-1 items-center justify-center p-2 border-dashed border-2 border-[#CCC] rounded-[5px]'>
                                             {genres.map((genre) => (
                                                 <label key={genre.id} htmlFor={`genre_${genre.id}`} className={`${selectedGenres.includes(genre.id) && 'bg-[#03f8c5]'} px-2 py-0.5 rounded-[5px] border border-[#1E1E1E] cursor-pointer hover:opacity-75`}>
@@ -300,7 +301,7 @@ const Create = () => {
                                         </div>
                                     </div>
 
-                                    <div className='flex flex-col w-full gap-2'>
+                                    {/* <div className='flex flex-col w-full gap-2'>
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Select a license for this track</span>
                                         {license.map((lic) => (
                                             <div key={lic.id} className='flex'>
@@ -314,9 +315,9 @@ const Create = () => {
                                                 </label>
                                             </div>
                                         ))}
-                                    </div>
+                                    </div> */}
 
-                                    <div className='flex flex-col w-full gap-2'>
+                                    {/* <div className='flex flex-col w-full gap-2'>
                                         <span className='font-bold text-[#1E1E1E] opacity-50'>Set a price for this track</span>
                                         <div className='flex w-full gap-2 items-center'>
                                             <span className='font-bold text-[18px]'>₱</span>
@@ -324,7 +325,7 @@ const Create = () => {
                                             value={price}
                                             onChange={(e) => setPrice(Number(e.target.value))} className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
                                         </div>
-                                    </div>
+                                    </div> */}
 
                                     
 
@@ -336,12 +337,22 @@ const Create = () => {
                                 </form>
                             )}
 
-                            {isTypeSelected === 'Beat Tape' && (
-                                <div>
+                            {isTypeSelected === 'Single' && (
+                                <div className='flex py-5 w-full items-start justify-start gap-5'>
+                                    <CreateSingle 
+                                        isTrackListOpen={openTrackList}
+                                    />
+                                </div>
+                            )}
+
+                            {isTypeSelected === 'Beat_Tape' && (
+                                <div className='flex flex-col py-5 w-[700px] items-start justify-start gap-5'>
                                     Beat Tape
                                 </div>
                             )}
                         </div>
+
+                        
                     </div>
                 </div>
             </div>

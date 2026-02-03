@@ -17,6 +17,9 @@ const SideNav = () => {
                 <Link to="/create" className={`${location.pathname === '/create' ? 'bg-[#DDD]' : 'hover:bg-[#BBB]'} p-2 rounded-[5px] text-[14px] font-bold`}>
                     Create
                 </Link>
+                <Link to="/catalog" className={`${location.pathname === '/catalog' ? 'bg-[#DDD]' : 'hover:bg-[#BBB]'} p-2 rounded-[5px] text-[14px] font-bold`}>
+                    Catalog
+                </Link>
             </div>
 
 

@@ -13,6 +13,7 @@ import Manage from './pages/Admin/Manage.jsx'
 import Create from './pages/Admin/Create.jsx'
 import Login from './pages/Admin/Login.jsx'
 import EditGenre from './components/AdminComponent/EditGenre.jsx'
+import Catalog from './pages/Admin/Catalog.jsx'
 
 function App() {
   
@@ -32,6 +33,7 @@ function App() {
         <Route path='dashboard' element={ user ? <Dashboard /> : <Navigate to='/admin'/>}/>
         <Route path='manage' element={ user ? <Manage /> : <Navigate to='/admin'/>}/>
         <Route path='create' element={ user ? <Create /> : <Navigate to='/admin'/>}/>
+        <Route path='catalog' element={ user ? <Catalog /> : <Navigate to='/admin' /> }/>
     </Routes>
   )
 }

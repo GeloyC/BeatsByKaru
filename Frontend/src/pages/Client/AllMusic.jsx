@@ -148,9 +148,9 @@ const AllMusic = () => {
                                 <img src={audio.cover_art_url} alt="" className='size-10 object-cover'/>
                             </div>
     
-                            <div className='flex items-center justify-center overflow-hidden w-full opacity-25 hover:opacity-100 active:opacity-25 cursor-pointer'>
+                            <div className='flex items-center justify-center overflow-hidden w-full opacity-50 hover:opacity-100 active:opacity-50 cursor-pointer'>
                                 <button onClick={() => toggleAudioPlay(audio.id)}>
-                                    <img src="/src/assets/icons/play_black.png" alt="" className='size-8 object-cover'/>
+                                    <img src={`/src/assets/icons/${playingId === audio.id ? 'pause' : 'play'}_black.png`} alt="play button" className='size-8 object-cover'/>
                                 </button>
                             </div>
                             <span className='flex flex-col w-full text-[16px] text-[#141414]'>
