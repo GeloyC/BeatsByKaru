@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryErrorResetBoundary } from "@tanstack/react-query";
 import axios from 'axios';
 
 const base_url = 'http://localhost:5000';
@@ -13,11 +13,9 @@ export function useAudio() {
                 });
 
                 if (!response.data) {
-                    console.log(error)
                     throw new Error('No audios returned');
                 }
 
-                console.log(response.data);
                 return response.data ?? [];
             } catch (err) {
                 console.error('Error retreiving audio data: ', err);
@@ -26,4 +24,17 @@ export function useAudio() {
         }, 
         retry: false
     });
+}
+
+
+export async function selectedTrackSingle(audio_id) {
+    if (!audio_id) {
+        throw new Error('audio_id is required!');
+    }
+
+    const response = await axios.get(`${base_url}/audio/single/${audio_id}`, {
+        withCredentials: true
+    });
+
+    return response.data;
 }

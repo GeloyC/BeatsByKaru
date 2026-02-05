@@ -12,7 +12,6 @@ export function useLicense() {
                 withCredentials: true
             });
     
-            console.log(response.data)
             return response.data;
         } catch (err) {
             console.error('Failed to retrieve license data: ', err);

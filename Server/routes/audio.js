@@ -137,5 +137,26 @@ audio.get('/all', async (req, res, next) => {
 });
 
 
+audio.get('/single/:id', requireAdmin, async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                message: 'Audio ID is required'
+            });
+        };
+
+        const selectedTrack = await db.one(`
+            SELECT * FROM audio WHERE id = $1;
+        `, [ id ]);
+
+        return res.json(selectedTrack);
+    } catch (err) {
+        console.error('Failed to fetch selected track: ', err);
+        next();
+    }
+});
+
 
 export default audio;

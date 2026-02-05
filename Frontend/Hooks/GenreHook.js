@@ -16,7 +16,6 @@ export function useGenre() {
             throw new Error('No genres returned');
           }
 
-          // console.log(response.data)
           // react-query rule is query functions should not return null/undefine
 
           return response.data ?? [];

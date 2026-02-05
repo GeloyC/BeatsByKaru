@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useLicense } from '../../../Hooks/LicenseHook.js'
 import UnpublishedTracks from './UnpublishedTracks.jsx';
-import { useAudio } from '../../../Hooks/AudioHooks.js';
+import { useAudio, selectedTrackSingle } from '../../../Hooks/AudioHooks.js';
+import axios from 'axios';
 
 
 const CreateSingle = ({ isTrackListOpen, audio_id }) => {
@@ -10,7 +11,11 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
     const [coverArtBlob, setCoverArtBlob] = useState(null);
     const [licenseSelected, setLicenseSelected] = useState(null);
     const [price, setPrice] = useState(0);
+
     const [selectedTrackId, setSelectedTrackId] = useState(null);
+    const [selectedTrack, setSelectedTrack] = useState(null);
+    const audioRef = useRef(null);
+    const [playing, setPlaying] = useState(false);
 
     // States for opening and closing windows
     const [openTrackList, setOpenTrackList] = useState(false);
@@ -34,14 +39,48 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
     }
 
 
+    const getSingleData = async (id) => {
+        const data = await selectedTrackSingle(id);
+        if (!data ) {
+            console.log("It's null");
+        }
+
+        setSelectedTrack(data);
+        setOpenTrackList(false);
+    }
+
+    const playAudio = () => {
+        const audio = audioRef.current;
+        if (audio.paused) {
+            audio.play();
+            setPlaying(true);
+        } else {
+            audio.pause();
+            setPlaying(false);
+        }
+    }
+
     return (
         <div className='grid grid-cols-2 w-full'>
             <div className='flex flex-col w-full gap-5'>
                 <div className='flex flex-col items-start w-full'>
                     <span className='font-bold text-[#1E1E1E] opacity-75'>Select track</span>
-                    <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-2 rounded-[10px] border border-[#2A2A2A]  transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#EEE] active:border-[#BABABA] active:bg-[#FFF]' : 'opacity-25'}`}>
-                        +
-                    </button>
+                    {selectedTrack ? (
+                        <div className='flex w-full items-center justify-start gap-2 border-2 border-[#007F80] p-2 rounded-[5px] bg-[#03f8c5]'>
+                            <div className='flex w-full items-center justify-start gap-2'>
+                                <button onClick={playAudio}>
+                                    {playing ? 'pause' : 'play'}
+                                </button>
+                                <span className='font-bold text-[#141414]'>{selectedTrack.title}</span>
+                                <audio ref={audioRef} src={selectedTrack.audio_tagged_url} controls hidden></audio>
+                            </div>
+                            <button onClick={() => setOpenTrackList(true)} className='whitespace-nowrap opacity-50 hover:opacity-100 hover:font-bold active:opacity-50'>Choose another</button>
+                        </div>
+                    ) : (
+                        <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-2 rounded-[10px] border border-[#2A2A2A]  transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#EEE] active:border-[#BABABA] active:bg-[#FFF]' : 'opacity-25'}`}>
+                            +
+                        </button>
+                    )}
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
@@ -95,7 +134,13 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
             </div>
                 
             {openTrackList && 
-                <UnpublishedTracks tracks={audios} onSelectTrack={setSelectedTrackId} closeTrackList={() => setOpenTrackList(false)}/>
+                <UnpublishedTracks 
+                    tracks={audios} 
+                    onSelectTrack={setSelectedTrackId} 
+                    closeTrackList={() => setOpenTrackList(false)}
+                    selectTrack={getSingleData}
+                    selectedTrackID={selectedTrackId}
+                />
             }
         </div>
     )
