@@ -40,7 +40,6 @@ const upload = multer({
 })
 
 
-
 audio.post('/upload-single', requireAdmin, 
     upload.fields([
         {name: 'untagged', maxCount: 1},
@@ -102,6 +101,37 @@ audio.post('/upload-single', requireAdmin,
         next(err);
     }
 })
+
+
+audio.patch('/single/:id/release', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]),  async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { license_id, price, date_updated } = req.body;
+
+        const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
+
+        const release = await db.any(`
+            UPDATE audio SET 
+                license_id = $1, cover_art_url = $2,  price = $3, date_updated = $4, status = 'available'
+            WHERE id = $5
+            RETURNING id, price, date_updated
+        `, [ license_id, cover_art_url, price, date_updated, id ]);
+
+        return res.status(200).json({
+            sucess: true,
+            message: `Track with id ${id} updated successfully!`,
+            date: {...release}
+        });
+
+    } catch (err) {
+        res.status(500).send({
+            sucess: false,
+            message: 'Failed to update track for release due to ', err
+        })
+        console.log('Error processing request for releasing single: ', err);
+        next(err);
+    }
+});
 
 
 audio.get('/all', async (req, res, next) => {

@@ -3,6 +3,7 @@ import { useLicense } from '../../../Hooks/LicenseHook.js'
 import UnpublishedTracks from './UnpublishedTracks.jsx';
 import { useAudio, selectedTrackSingle } from '../../../Hooks/AudioHooks.js';
 import axios from 'axios';
+import { useMutation } from '@tanstack/react-query';
 
 
 const CreateSingle = ({ isTrackListOpen, audio_id }) => {
@@ -42,7 +43,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
     const getSingleData = async (id) => {
         const data = await selectedTrackSingle(id);
         if (!data ) {
-            console.log("It's null");
+            throw new Error('Data is empty or null.');
         }
 
         setSelectedTrack(data);
@@ -60,16 +61,56 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
         }
     }
 
+    const handleUpdateTrackReleaseNow = (e) => {
+        e.preventDefault();
+
+        const trackReleaseForm = new FormData();
+
+        trackReleaseForm.append('license_id', licenseSelected);
+        trackReleaseForm.append('price', price);
+        trackReleaseForm.append('date_updated', new Date(Date.now()).toLocaleDateString());
+        trackReleaseForm.append('cover_art', coverArtBlob);
+
+
+        updateSingleReleaseNow(trackReleaseForm);
+    }
+
+    const { mutate: updateSingleReleaseNow } = useMutation({
+        mutationFn: async (formData) => {
+            const response = await axios.patch(`http://localhost:5000/audio/single/${selectedTrackId}/release`, formData, {
+                withCredentials: true
+            });
+
+            console.log('Patch result: ', response.data);
+            return response.data;
+        },
+        onSuccess: () => {
+            setOpenTrackList(false);
+            licenseSelected(null);
+            setPrice(0);
+            setSelectedTrackId(null);
+            setSelectedTrack(null);
+        }
+    });
+
+
+
+    console.log('License: ', licenseSelected);
+
     return (
         <div className='grid grid-cols-2 w-full'>
             <div className='flex flex-col w-full gap-5'>
                 <div className='flex flex-col items-start w-full'>
                     <span className='font-bold text-[#1E1E1E] opacity-75'>Select track</span>
-                    {selectedTrack ? (
+                    {selectedTrack && !openTrackList ? (
                         <div className='flex w-full items-center justify-start gap-2 border-2 border-[#007F80] p-2 rounded-[5px] bg-[#03f8c5]'>
                             <div className='flex w-full items-center justify-start gap-2'>
-                                <button onClick={playAudio}>
-                                    {playing ? 'pause' : 'play'}
+                                <button onClick={playAudio} className='w-[30px] h-[30px]'>
+                                    {playing ? (
+                                        <img src="/src/assets/icons/pause_black.png" alt="pause" />
+                                    ) : (
+                                        <img src="/src/assets/icons/play_black.png" alt="play" />
+                                    )}
                                 </button>
                                 <span className='font-bold text-[#141414]'>{selectedTrack.title}</span>
                                 <audio ref={audioRef} src={selectedTrack.audio_tagged_url} controls hidden></audio>
@@ -87,7 +128,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                     <span className='font-bold text-[#1E1E1E] opacity-50'>Select a license for this track</span>
                     {license.map((lic) => (
                         <div key={lic.id} className='flex'>
-                            <label htmlFor={`license_${lic.license}`} className={`${licenseSelected === lic.id ? 'bg-[#EADCA7]' : 'bg-[#EEE]'} flex w-full items-center justify-between p-2 border border-[#BBB] rounded-[5px] gap-2 cursor-pointer`}>
+                            <label htmlFor={`license_${lic.license}`} className={`${licenseSelected === lic.id ? 'bg-[#EADCA7]' : 'bg-[#EEE]'} flex w-full items-center justify-between p-2 border border-[#BBB] rounded-[5px] gap-2 cursor-pointer hover:border-[#2A2A2A]`}>
                                 <div className='flex items-center'>
                                     <input onChange={() => setLicenseSelected(lic.id)} value={lic.id} type="radio" name="license" id={`license_${lic.license}`} hidden/>
                                     <span>{lic.license}</span> 
@@ -129,7 +170,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                 <div className='flex items-center gap-1 w-full justify-end'>
                     <button className='px-4 py-1 border border-[#6A6A6A] rounded-[5px] hover:opacity-50 active:opacity-100'>Set a Release Date</button>
 
-                    <button className='px-4 py-1 bg-[#03f8c5] border border-[#007F80] rounded-[5px] hover:opacity-50 active:opacity-100'>Release Now</button>
+                    <button onClick={handleUpdateTrackReleaseNow} className='px-4 py-1 bg-[#03f8c5] border border-[#007F80] rounded-[5px] hover:opacity-50 active:opacity-100'>Release Now</button>
                 </div>
             </div>
                 
