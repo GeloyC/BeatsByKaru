@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery,useQueryClient } from '@tanstack/react-query';
 import NavigationBar from '../../components/NavigationBar';
 import Footer from '../../components/Footer';
-import { useAudio } from '../../../Hooks/AudioHooks';
+import { useAvailable } from '../../../Hooks/AudioHooks';
 import { useGenre } from '../../../Hooks/GenreHook';
 
 const AllMusic = () => {
@@ -47,7 +47,7 @@ const AllMusic = () => {
         }
     }
 
-    const {data: audios = [] } = useAudio();
+    const {data: audios = [] } = useAvailable();
     const {data: genres = [] } = useGenre();
 
     const filteredGenre = useMemo(() => {

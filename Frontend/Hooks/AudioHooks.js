@@ -8,6 +8,29 @@ export function useAudio() {
         queryKey: ['audio'],
         queryFn: async () => {
             try {
+                const response = await axios.get(`${base_url}/audio/pending`, {
+                    withCredentials: true
+                });
+
+                if (!response.data) {
+                    throw new Error('No pending audios returned');
+                }
+
+                return response.data ?? [];
+            } catch (err) {
+                console.error('Error retreiving pending audio data: ', err);
+                throw err;
+            }
+        }, 
+        retry: false
+    });
+}
+
+export function useSingle() {
+    return useQuery({
+        queryKey: ['single'],
+        queryFn: async () => {
+            try {
                 const response = await axios.get(`${base_url}/audio/all`, {
                     withCredentials: true
                 });
@@ -21,11 +44,31 @@ export function useAudio() {
                 console.error('Error retreiving audio data: ', err);
                 throw err;
             }
-        }, 
-        retry: false
+        }
     });
 }
 
+export function useAvailable() {
+    return useQuery({
+        queryKey: ['single'],
+        queryFn: async () => {
+            try {
+                const response = await axios.get(`${base_url}/audio/single/available`, {
+                    withCredentials: true
+                });
+
+                if (!response.data) {
+                    throw new Error('No audios returned');
+                }
+
+                return response.data ?? [];
+            } catch (err) {
+                console.error('Error retreiving audio data: ', err);
+                throw err;
+            }
+        }
+    });
+}
 
 export async function selectedTrackSingle(audio_id) {
     if (!audio_id) {

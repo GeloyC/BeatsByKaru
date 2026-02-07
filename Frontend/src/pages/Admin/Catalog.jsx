@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react'
 import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
-import { useAudio } from '../../../Hooks/AudioHooks'
+import { useSingle } from '../../../Hooks/AudioHooks'
 
 const Catalog = () => {
 
-    const { data: audios = [] } = useAudio();
+    const { data: audios = [] } = useSingle();
     
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);

@@ -25,7 +25,6 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
     const { data: audios = [] } = useAudio();
     
     
-
     const handlePreviewCoverArt = (e) => {
         const imageFile = e.target.files[0];
         if (!imageFile) return;
@@ -49,6 +48,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
         setSelectedTrack(data);
         setOpenTrackList(false);
     }
+
 
     const playAudio = () => {
         const audio = audioRef.current;
@@ -77,12 +77,16 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
 
     const { mutate: updateSingleReleaseNow } = useMutation({
         mutationFn: async (formData) => {
-            const response = await axios.patch(`http://localhost:5000/audio/single/${selectedTrackId}/release`, formData, {
-                withCredentials: true
-            });
-
-            console.log('Patch result: ', response.data);
-            return response.data;
+            try {
+                const response = await axios.patch(`http://localhost:5000/audio/single/${selectedTrackId}/release`, formData, {
+                    withCredentials: true
+                });
+    
+                console.log('Patch result: ', response.data);
+                return response.data;
+            } catch(err) {
+                console.error('Failed to update single: ', err);
+            }
         },
         onSuccess: () => {
             setOpenTrackList(false);
@@ -93,9 +97,6 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
         }
     });
 
-
-
-    console.log('License: ', licenseSelected);
 
     return (
         <div className='grid grid-cols-2 w-full'>
