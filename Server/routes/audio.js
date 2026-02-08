@@ -107,33 +107,76 @@ audio.post('/upload-single', requireAdmin,
 audio.patch('/single/:id/release', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]),  async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { license_id, singleTitle,  price, release_date } = req.body;
+        const { license_id, singleTitle, price, release_date } = req.body;
 
         const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
 
-        const release = await db.any(`
-            UPDATE audio SET    
-                license_id = $1, cover_art_url = $2, price = $3
-            WHERE id = $4
-            RETURNING id, price
-        `, [ license_id, cover_art_url, price, id ]);
+        // Error Handling
+        if (!id || isNaN(id)) {
+            return res.status(400).json({message: 'Missing audio ID'});
+        }
 
-        const single = await db.one(`
-            INSERT INTO album ( title, album_type, covert_art_url, release_date )
-            VALUES ($1, 'single', $2, $3) 
-            RETURNING id
-        `, [ singleTitle, cover_art_url, release_date ]);
+        if (!singleTitle?.trim()) {
+            return res.status(400).json({message: 'Single title is required'});
+        }
 
-        await db.one(`
-            INSERT INTO album_audio (audio_id, album_id, track_number)
-            VALUES ($1, $2, 1)
-            RETURNING audio_id, album_id
-        `, [ id, single.id ]);
+        if (!price || isNaN(price) || Number(price) < 0) {
+            return res.status(400).json({message: 'Valid non-negative price is required'});
+        }
+
+        if (!release_date || isNaN(Date.parse(release_date)) || new Date(release_date) < new Date().setHours(0,0,0,0)) {
+            return res.status(400).json({message: 'Valid release date is required'});
+        }
+
+
+
+        if (!license_id || isNaN(license_id)) {
+            res.status(400).json({message: 'Valid license ID is required'});
+        }
+
+        if (!req?.files?.cover_art?.[0]) {
+            return res.status(400).json({message: 'Cover art required'});
+        }
+
+
+        const result = await db.tx( async tran => {
+            const audio = await tran.oneOrNone(`
+                UPDATE audio SET    
+                    license_id = $1, cover_art_url = $2, price = $3, date_updated = NOW()
+                WHERE id = $4
+                RETURNING id, price, status
+            `, [ license_id, cover_art_url, price, id ]);
+
+            if (!audio) {
+                throw new Error('Audio not found!');
+            }
+
+            if (audio.status !== 'pending') {
+                throw new Error('Audio is not in pending state');
+            }
+
+            const single = await tran.one(`
+                INSERT INTO album ( title, album_type, covert_art_url, release_date, status )
+                VALUES ($1, 'single', $2, $3, 'pending') 
+                RETURNING id
+            `, [ singleTitle.trim(), cover_art_url, release_date ]);
+
+            await db.none(`
+                INSERT INTO album_audio (audio_id, album_id, track_number)
+                VALUES ($1, $2, 1)
+                ON CONFLICT DO NOTHING
+            `, [ id, single.id ]);
+
+            return { audio, single }
+        });
 
         return res.status(200).json({
             sucess: true,
-            message: `Track with id ${id} updated successfully!`,
-            data: {...release}
+            message: `Track "${singleTitle}" updated successfully!`,
+            data: {
+                audio_id: result.audio.id,
+                single_id: result.single.id
+            }
         });
 
     } catch (err) {

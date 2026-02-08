@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 
 import { testConnection } from './data/database.js';
 import { sessionStore } from './data/database.js';
+import { releaseTracksCron } from './utils/publishTrack.js';
 
 // Routes
 import user from './routes/user.js';
@@ -57,10 +58,13 @@ app.use('/genre', genre);
 app.use('/license', license);
 app.use('/audio', audio);
 
-
+// Testing server if working
 app.get('/', (req, res) => {
     res.send("Expressing....");
 });
+
+// release of album scheduler
+releaseTracksCron();
 
 
 app.listen(PORT, () => {

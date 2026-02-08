@@ -185,7 +185,8 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                 <div className='flex flex-col w-full gap-2'>
                     <span className='font-bold text-[#1E1E1E] opacity-75'>Set a release date</span>
                     <div className='flex w-full gap-2 items-center'>
-                        <input type="datetime-local" id='release_date' name='release_date' 
+                        <input type="date" id='release_date' name='release_date' 
+                        min={new Date().toISOString().split('T')[0]}
                         value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)}
                         className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none' />
                     </div>

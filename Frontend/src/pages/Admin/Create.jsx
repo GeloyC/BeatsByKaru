@@ -223,8 +223,8 @@ const Create = () => {
                                         </div>
                                         <div className='flex items-center justify-center w-full min-h-[75px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
                                             {!taggedAudioPreview ? (
-                                                <label htmlFor='single' className='flex w-full h-full items-center justify-center hover:bg-[#DDD] cursor-pointer active:bg-[#FFF]'>
-                                                    <span>Choose audio preview +</span>  
+                                                <label htmlFor='single' className='flex w-auto h-full items-center justify-center hover:bg-[#BBB] cursor-pointer active:bg-[#DDD] py-1 px-3 rounded-full border border-[#BABABA] bg-[#DDD]'>
+                                                    <span>+ Choose audio preview</span>  
                                                     <input onChange={handlePreviewTaggedAudio} type="file" name="singleUpload" id="single" hidden accept='audio/mp3' />
                                                 </label>
                                             ) : (
@@ -240,8 +240,8 @@ const Create = () => {
                                         <span className='font-bold text-[#1E1E1E] opacity-75'>Upload Downloadable Audio (No Tag/ Clean version)</span>
                                         <div className='flex items-center justify-center w-full min-h-[75px] border-2 border-dashed border-[#CCC] rounded-[5px]'>
                                             {!untaggedAudioPreview ? (
-                                                <label htmlFor='beatTape' className='flex w-full h-full items-center justify-center hover:bg-[#DDD] cursor-pointer active:bg-[#FFF]'>
-                                                    Choose audio +  
+                                                <label htmlFor='beatTape' className='flex w-auto h-full items-center justify-center hover:bg-[#BBB] cursor-pointer active:bg-[#DDD] py-1 px-3 rounded-full border border-[#BABABA] bg-[#DDD]'>
+                                                    + Choose audio 
                                                     <input onChange={handlePreviewUntaggedAudio} type="file" name="beatTapeUpload" id="beatTape" hidden accept='audio/*' />
                                                 </label>
                                             ) : (
