@@ -11,7 +11,9 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
     const [coverArt, setCoverArt] = useState(null);
     const [coverArtBlob, setCoverArtBlob] = useState(null);
     const [licenseSelected, setLicenseSelected] = useState(null);
+    const [singleTitle, setSingleTitle] = useState('');
     const [price, setPrice] = useState(0);
+    const [releaseDate, setReleaseDate] = useState('');
 
     const [selectedTrackId, setSelectedTrackId] = useState(null);
     const [selectedTrack, setSelectedTrack] = useState(null);
@@ -68,11 +70,13 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
 
         trackReleaseForm.append('license_id', licenseSelected);
         trackReleaseForm.append('price', price);
-        trackReleaseForm.append('date_updated', new Date(Date.now()).toLocaleDateString());
+        trackReleaseForm.append('singleTitle', singleTitle);
+        trackReleaseForm.append('release_date', releaseDate);
         trackReleaseForm.append('cover_art', coverArtBlob);
 
 
         updateSingleReleaseNow(trackReleaseForm);
+
     }
 
     const { mutate: updateSingleReleaseNow } = useMutation({
@@ -96,6 +100,9 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
             setSelectedTrack(null);
         }
     });
+
+
+
 
 
     return (
@@ -126,7 +133,14 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-50'>Select a license for this track</span>
+                    <span className='font-bold text-[#1E1E1E] opacity-75'>Title (Single)</span>
+                    <input type="text" 
+                        value={singleTitle}
+                        onChange={(e) => setSingleTitle(e.target.value)} className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
+                </div>
+
+                <div className='flex flex-col w-full gap-2'>
+                    <span className='font-bold text-[#1E1E1E] opacity-75'>Select a license for this track</span>
                     {license.map((lic) => (
                         <div key={lic.id} className='flex'>
                             <label htmlFor={`license_${lic.license}`} className={`${licenseSelected === lic.id ? 'bg-[#EADCA7]' : 'bg-[#EEE]'} flex w-full items-center justify-between p-2 border border-[#BBB] rounded-[5px] gap-2 cursor-pointer hover:border-[#2A2A2A]`}>
@@ -168,10 +182,17 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                     </div>
                 </div> 
 
-                <div className='flex items-center gap-1 w-full justify-end'>
-                    <button className='px-4 py-1 border border-[#6A6A6A] rounded-[5px] hover:opacity-50 active:opacity-100'>Set a Release Date</button>
+                <div className='flex flex-col w-full gap-2'>
+                    <span className='font-bold text-[#1E1E1E] opacity-75'>Set a release date</span>
+                    <div className='flex w-full gap-2 items-center'>
+                        <input type="datetime-local" id='release_date' name='release_date' 
+                        value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)}
+                        className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none' />
+                    </div>
+                </div>
 
-                    <button onClick={handleUpdateTrackReleaseNow} className='px-4 py-1 bg-[#03f8c5] border border-[#007F80] rounded-[5px] hover:opacity-50 active:opacity-100'>Release Now</button>
+                <div className='flex items-center gap-1 w-full justify-end'>
+                    <button onClick={handleUpdateTrackReleaseNow} className='px-4 py-1 bg-[#03f8c5] border border-[#007F80] rounded-[5px] hover:opacity-50 active:opacity-100'>Save changes</button>
                 </div>
             </div>
                 

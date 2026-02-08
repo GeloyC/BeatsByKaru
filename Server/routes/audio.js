@@ -103,24 +103,37 @@ audio.post('/upload-single', requireAdmin,
 })
 
 
+// TODO: fix audio update then update the album table using
 audio.patch('/single/:id/release', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]),  async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { license_id, price, date_updated } = req.body;
+        const { license_id, singleTitle,  price, release_date } = req.body;
 
         const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
 
         const release = await db.any(`
-            UPDATE audio SET 
-                license_id = $1, cover_art_url = $2,  price = $3, date_updated = $4, status = 'available'
-            WHERE id = $5
-            RETURNING id, price, date_updated
-        `, [ license_id, cover_art_url, price, date_updated, id ]);
+            UPDATE audio SET    
+                license_id = $1, cover_art_url = $2, price = $3
+            WHERE id = $4
+            RETURNING id, price
+        `, [ license_id, cover_art_url, price, id ]);
+
+        const single = await db.one(`
+            INSERT INTO album ( title, album_type, covert_art_url, release_date )
+            VALUES ($1, 'single', $2, $3) 
+            RETURNING id
+        `, [ singleTitle, cover_art_url, release_date ]);
+
+        await db.one(`
+            INSERT INTO album_audio (audio_id, album_id, track_number)
+            VALUES ($1, $2, 1)
+            RETURNING audio_id, album_id
+        `, [ id, single.id ]);
 
         return res.status(200).json({
             sucess: true,
             message: `Track with id ${id} updated successfully!`,
-            date: {...release}
+            data: {...release}
         });
 
     } catch (err) {
