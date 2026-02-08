@@ -127,7 +127,7 @@ const AllMusic = () => {
                 </div>
 
 
-                <span className='flex flex-row items-start w-full text-[24px] text-[#141414] font-bold'>Beat Tapes</span>
+                <span className='flex flex-row items-start w-full text-[24px] text-[#141414] font-bold'>Single</span>
                 <div className='grid grid-cols-[5%_5%_20%_25%_10%_10%_10%_15%] place-items-start w-full h-[30px] border-b border-[#BABABA]'>
                     {/* Headers */}
                     <div className='text-[#6A6A6A] text-[14px]'>BEAT TAPE</div>

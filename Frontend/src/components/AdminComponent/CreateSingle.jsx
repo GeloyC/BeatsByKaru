@@ -81,23 +81,26 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
 
     const { mutate: updateSingleReleaseNow } = useMutation({
         mutationFn: async (formData) => {
-            try {
-                const response = await axios.patch(`http://localhost:5000/audio/single/${selectedTrackId}/release`, formData, {
-                    withCredentials: true
-                });
-    
-                console.log('Patch result: ', response.data);
-                return response.data;
-            } catch(err) {
-                console.error('Failed to update single: ', err);
-            }
+            const response = await axios.patch(`http://localhost:5000/audio/single/${selectedTrackId}/release`, formData, {
+                withCredentials: true
+            });
+
+            console.log('Patch result: ', response.data);
+            return response.data;
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            console.log('Successfull upload: ', data);
+
             setOpenTrackList(false);
-            licenseSelected(null);
+            setLicenseSelected(null);
+            setSingleTitle('');
+            setReleaseDate('');
             setPrice(0);
             setSelectedTrackId(null);
             setSelectedTrack(null);
+        },
+        onError: (err) => {
+            console.error('Mutation failed: ', err);
         }
     });
 
@@ -111,7 +114,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                 <div className='flex flex-col items-start w-full'>
                     <span className='font-bold text-[#1E1E1E] opacity-75'>Select track</span>
                     {selectedTrack && !openTrackList ? (
-                        <div className='flex w-full items-center justify-start gap-2 border-2 border-[#007F80] p-2 rounded-[5px] bg-[#03f8c5]'>
+                        <div className='flex w-full items-center justify-start gap-2 border-2 border-[#007F80] p-1 px-2 rounded-[10px] bg-[#03f8c5]'>
                             <div className='flex w-full items-center justify-start gap-2'>
                                 <button onClick={playAudio} className='w-[30px] h-[30px]'>
                                     {playing ? (

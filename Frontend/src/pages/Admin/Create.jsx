@@ -9,6 +9,7 @@ import { useMutation } from '@tanstack/react-query'
 import CreateSingle from '../../components/AdminComponent/CreateSingle.jsx'
 import { useAudio } from '../../../Hooks/AudioHooks.js'
 import UnpublishedTracks from '../../components/AdminComponent/UnpublishedTracks.jsx'
+import CreateBeatTape from '../../components/AdminComponent/CreateBeatTape.jsx'
 
 const Create = () => {
     const base_url = 'http://localhost:5000';
@@ -188,14 +189,14 @@ const Create = () => {
                                     <input type="radio" name="type" id="Single" value={'Single'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
                                 </label>
 
-                                <label htmlFor="Bundle" className={`${isTypeSelected === 'Bundle' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
-                                    Bundle
-                                    <input type="radio" name="type" id="Bundle" value={'Bundle'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
-                                </label>
-
                                 <label htmlFor="Beat_Tape" className={`${isTypeSelected === 'Beat_Tape' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
                                     Beat Tape
                                     <input type="radio" name="type" id="Beat_Tape" value={'Beat_Tape'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
+                                </label>
+
+                                <label htmlFor="Bundle" className={`${isTypeSelected === 'Bundle' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
+                                    Bundle
+                                    <input type="radio" name="type" id="Bundle" value={'Bundle'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
                                 </label>
 
                                 {!isTypeSelected && (
@@ -207,7 +208,7 @@ const Create = () => {
                             </div>
 
                             {isTypeSelected === 'Track' && (
-                                <form onSubmit={handleUpload} className='flex flex-col py-5 w-[700px] items-start justify-start gap-5'>
+                                <form onSubmit={handleUpload} className='flex flex-col w-[700px] py-2 items-start justify-start gap-5'>
                                     <div className='flex flex-col w-full'>
                                         <span className='font-bold text-[#1E1E1E] opacity-75'>Title</span>
                                         <input type="text" placeholder='Add a title' 
@@ -332,13 +333,13 @@ const Create = () => {
                                     <div className='flex items-center gap-1 w-full justify-end'>
                                         <button className='px-4 py-1 bg-[#03f8c5] border border-[#007F80] rounded-[5px] hover:opacity-50 active:opacity-100'>Upload</button>
 
-                                        <button className='px-4 py-1 border border-[#141414] rounded-[5px] hover:opacity-50 active:opacity-100'>Cancel</button>
+                                        <button type='button' className='px-4 py-1 border border-[#141414] rounded-[5px] hover:opacity-50 active:opacity-100'>Cancel</button>
                                     </div>
                                 </form>
                             )}
 
                             {isTypeSelected === 'Single' && (
-                                <div className='flex py-5 w-full items-start justify-start gap-5'>
+                                <div className='flex w-full items-start justify-start gap-5 py-2'>
                                     <CreateSingle 
                                         isTrackListOpen={openTrackList}
                                     />
@@ -346,8 +347,8 @@ const Create = () => {
                             )}
 
                             {isTypeSelected === 'Beat_Tape' && (
-                                <div className='flex flex-col py-5 w-[700px] items-start justify-start gap-5'>
-                                    Beat Tape
+                                <div className='flex w-full items-start justify-start gap-5 py-2'>
+                                    <CreateBeatTape />
                                 </div>
                             )}
                         </div>

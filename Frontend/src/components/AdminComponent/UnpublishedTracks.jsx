@@ -23,9 +23,9 @@ const UnpublishedTracks = ({
 
     return (
         <div className='flex flex-col w-full items-start justify-start gap-2 p-5'>
-            <span className='font-bold'>Browse all unpublished Tracks</span>
+            <span className='font-bold text-[20px]'>Unpublished Tracks</span>
 
-            <div className='flex flex-col w-full h-full px-2 gap-1'>
+            <div className='flex flex-col w-full h-full gap-1'>
                 {tracks.map(track => (
                     <label key={track.id} htmlFor={`audio_${track.id}`} className={`flex items-center justify-start p-2 w-full border gap-2 rounded-[5px] hover:bg-[#EEE] active:bg-[#FFF] ${selectedTrackID === track.id ? 'border-[#007F80] font-bold text-[#007F80]' : 'border-[#CCC]'}`}>
                         <input hidden onChange={() => {onSelectTrack(track.id)}}

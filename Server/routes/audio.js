@@ -161,7 +161,7 @@ audio.patch('/single/:id/release', requireAdmin, upload.fields([{name: 'cover_ar
                 RETURNING id
             `, [ singleTitle.trim(), cover_art_url, release_date ]);
 
-            await db.none(`
+            await tran.none(`
                 INSERT INTO album_audio (audio_id, album_id, track_number)
                 VALUES ($1, $2, 1)
                 ON CONFLICT DO NOTHING
