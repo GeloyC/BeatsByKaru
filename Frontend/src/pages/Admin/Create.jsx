@@ -340,7 +340,7 @@ const Create = () => {
 
                             {isTypeSelected === 'Single' && (
                                 <div className='flex w-full items-start justify-start gap-5 py-2'>
-                                    <CreateSingle 
+                                    <CreateSingle typeSelected={isTypeSelected}
                                         isTrackListOpen={openTrackList}
                                     />
                                 </div>
@@ -348,7 +348,7 @@ const Create = () => {
 
                             {isTypeSelected === 'Beat_Tape' && (
                                 <div className='flex w-full items-start justify-start gap-5 py-2'>
-                                    <CreateBeatTape />
+                                    <CreateBeatTape typeSelected={isTypeSelected}/>
                                 </div>
                             )}
                         </div>

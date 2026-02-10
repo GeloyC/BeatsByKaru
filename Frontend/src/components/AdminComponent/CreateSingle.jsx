@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 
 
-const CreateSingle = ({ isTrackListOpen, audio_id }) => {
+const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
     
     const [coverArt, setCoverArt] = useState(null);
     const [coverArtBlob, setCoverArtBlob] = useState(null);
@@ -129,7 +129,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                             <button onClick={() => setOpenTrackList(true)} className='whitespace-nowrap opacity-50 hover:opacity-100 hover:font-bold active:opacity-50'>Choose another</button>
                         </div>
                     ) : (
-                        <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-2 rounded-[10px] border border-[#2A2A2A]  transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#EEE] active:border-[#BABABA] active:bg-[#FFF]' : 'opacity-25'}`}>
+                        <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-1 rounded-full border-2 border-[#2A2A2A]  transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#EEE] active:border-[#BABABA] active:bg-[#FFF]' : 'opacity-25'}`}>
                             +
                         </button>
                     )}
@@ -146,7 +146,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                     <span className='font-bold text-[#1E1E1E] opacity-75'>Select a license for this track</span>
                     {license.map((lic) => (
                         <div key={lic.id} className='flex'>
-                            <label htmlFor={`license_${lic.license}`} className={`${licenseSelected === lic.id ? 'bg-[#EADCA7]' : 'bg-[#EEE]'} flex w-full items-center justify-between p-2 border border-[#BBB] rounded-[5px] gap-2 cursor-pointer hover:border-[#2A2A2A]`}>
+                            <label htmlFor={`license_${lic.license}`} className={`${licenseSelected === lic.id ? 'bg-[#EADCA7] border-[#D4B74B] ' : 'bg-[#EEE] border-[#BBB] hover:border-[#D4B74B]'} flex w-full items-center justify-between p-2 border border-[#BBB] rounded-[5px] gap-2 cursor-pointer`}>
                                 <div className='flex items-center'>
                                     <input onChange={() => setLicenseSelected(lic.id)} value={lic.id} type="radio" name="license" id={`license_${lic.license}`} hidden/>
                                     <span>{lic.license}</span> 
@@ -207,6 +207,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id }) => {
                     closeTrackList={() => setOpenTrackList(false)}
                     selectTrack={getSingleData}
                     selectedTrackID={selectedTrackId}
+                    typeSelection={typeSelected}
                 />
             }
         </div>

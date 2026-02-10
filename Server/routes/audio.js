@@ -57,7 +57,6 @@ audio.post('/upload-single', requireAdmin,
 
         const audio_url = `${req.protocol}://${req.get("host")}/audio-uploads/${audio_url_filename}`; 
         const audio_tagged_url = `${req.protocol}://${req.get("host")}/audio-uploads/${audio_tagged_filename}`; 
-        // const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${cover_art_filename}`;
 
 
         if (!req.files?.untagged || !req.files?.tagged) {
