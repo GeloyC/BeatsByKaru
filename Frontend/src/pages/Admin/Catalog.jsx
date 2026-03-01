@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
-import { useSingle } from '../../../Hooks/AudioHooks'
+import { useSingle } from '../../../Hooks/AudioHooks.js'
 
 const Catalog = () => {
 
@@ -65,18 +65,24 @@ const Catalog = () => {
 
                         <div className='flex flex-col w-full'>
                             {audios.map((audio) => (
-                                <div key={audio.id} className='grid grid-cols-[5%_10%_20%_10%_10%_10%_15%_10%_10%] place-items-center w-full h-[40px] border-b border-[#CCC] hover:bg-[#EEE]'>
-                                    <div className='flex items-center w-full text-[14px]'>{audio.id}</div>
+                                <div key={audio.album_id} className='grid grid-cols-[5%_10%_20%_10%_10%_10%_15%_10%_10%] place-items-center w-full h-[40px] border-b border-[#CCC] hover:bg-[#EEE]'>
+                                    <div className='flex items-center w-full text-[14px]'>{audio.album_id}</div>
                                     <div className='flex items-center w-full text-[14px]'>{formatTime(audio.duration)}</div>
                                     <div className='flex gap-2 items-center w-full text-[14px]'>
-                                        <button onClick={() => toggleAudioPlay(audio.id) }>{playingId === audio.id ? 'Pause' : 'Play'}</button>
+                                        <button onClick={() => toggleAudioPlay(audio.album_id) }>{
+                                        playingId === audio.album_id ? (
+                                            <img src="/src/assets/icons/pause_black.png" alt="play" className='w-[20px] h-[20px] opacity-75'/>
+                                        ) : (
+                                            <img src="/src/assets/icons/play_black.png" alt="pause" className='w-[20px] h-[20px] opacity-75'/>
+                                        )
+                                    }</button>
                                         <span className='w-[200px] truncate'>{audio.title}</span>
-                                        <audio ref={(aud) => {audioRef.current[audio.id] = aud}} src={audio.audio_tagged_url} controls hidden></audio>
+                                        <audio ref={(aud) => {audioRef.current[audio.album_id] = aud}} src={audio.audio_tagged_url} controls hidden></audio>
                                     </div>
-                                    <div className='flex items-center w-full text-[14px]'>Album Type</div>
+                                    <div className='flex items-center w-full text-[14px]'>{audio.album_type}</div>
                                     <div className='flex items-center w-full text-[14px]'>{new Date(audio.date_created).toLocaleDateString()}</div>
-                                    <div className='flex items-center w-full text-[14px]'>Date Updated</div>
-                                    <div className='flex items-center w-full text-[14px]'>Release Date</div>
+                                    <div className='flex items-center w-full text-[14px]'>{new Date(audio.date_updated).toLocaleDateString()}</div>
+                                    <div className='flex items-center w-full text-[14px]'>{new Date(audio.release_date).toLocaleDateString()}</div>
                                     <div className='flex items-center w-full text-[14px]'>{new Intl.NumberFormat('en-PH', {
                                         style: 'currency',
                                         currency: 'php'

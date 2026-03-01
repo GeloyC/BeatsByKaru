@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import { pool } from '../data/database.js';
 
 export const releaseTracksCron = () => {
-    cron.schedule('5 0 * * *', async () => {
+    cron.schedule('* * * * *', async () => {
         try {
             const result = await pool.query(`
                 WITH updated_albums AS (

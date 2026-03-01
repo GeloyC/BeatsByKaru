@@ -39,6 +39,8 @@ export function useSingle() {
                     throw new Error('No audios returned');
                 }
 
+                console.log('Audio Single', response.data)
+
                 return response.data ?? [];
             } catch (err) {
                 console.error('Error retreiving audio data: ', err);
@@ -48,12 +50,14 @@ export function useSingle() {
     });
 }
 
+
+
 export function useAvailable() {
     return useQuery({
         queryKey: ['single'],
         queryFn: async () => {
             try {
-                const response = await axios.get(`${base_url}/audio/single/available`, {
+                const response = await axios.get(`${base_url}/audio/available`, {
                     withCredentials: true
                 });
 

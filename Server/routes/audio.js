@@ -39,12 +39,11 @@ const upload = multer({
     }
 })
 
-
-audio.post('/upload-single', requireAdmin, 
+// used in Create.jsx
+audio.post('/upload-track', requireAdmin, 
     upload.fields([
         {name: 'untagged', maxCount: 1},
         {name: 'tagged', maxCount: 1}
-        // {name: 'cover_art', maxCount: 1}
     ]), async (req, res, next) => {
 
     try {
@@ -52,7 +51,6 @@ audio.post('/upload-single', requireAdmin,
 
         const audio_url_filename = req.files.untagged[0].filename;
         const audio_tagged_filename = req.files.tagged[0].filename;
-        // const cover_art_filename = req.files.cover_art[0].filename;
 
 
         const audio_url = `${req.protocol}://${req.get("host")}/audio-uploads/${audio_url_filename}`; 
@@ -102,7 +100,8 @@ audio.post('/upload-single', requireAdmin,
 })
 
 
-// TODO: fix audio update then update the album table using
+// Upload a single
+// Used in CreateSingle.jsx
 audio.patch('/single/:id/release', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]),  async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -141,24 +140,21 @@ audio.patch('/single/:id/release', requireAdmin, upload.fields([{name: 'cover_ar
         const result = await db.tx( async tran => {
             const audio = await tran.oneOrNone(`
                 UPDATE audio SET    
-                    license_id = $1, cover_art_url = $2, price = $3, date_updated = NOW()
-                WHERE id = $4
-                RETURNING id, price, status
-            `, [ license_id, cover_art_url, price, id ]);
+                    license_id = $1, date_updated = NOW()
+                WHERE id = $2
+                RETURNING id, status
+            `, [ license_id, id ]);
 
             if (!audio) {
                 throw new Error('Audio not found!');
             }
 
-            if (audio.status !== 'pending') {
-                throw new Error('Audio is not in pending state');
-            }
 
             const single = await tran.one(`
-                INSERT INTO album ( title, album_type, covert_art_url, release_date, status )
-                VALUES ($1, 'single', $2, $3, 'pending') 
+                INSERT INTO album ( title, album_type, cover_art_url, release_date, price )
+                VALUES ($1, 'single', $2, $3, $4) 
                 RETURNING id
-            `, [ singleTitle.trim(), cover_art_url, release_date ]);
+            `, [ singleTitle.trim(), cover_art_url, release_date, price ]);
 
             await tran.none(`
                 INSERT INTO album_audio (audio_id, album_id, track_number)
@@ -221,27 +217,36 @@ audio.get('/pending', async (req, res, next) => {
     }
 });
 
+
+// Retreiving all the details 
+// Displays on the catalog page in admin
 audio.get('/all', async (req, res, next) => {
     try {
         const audios = await db.any(`
             SELECT
-                a.*,
-                COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'id', g.id,
-                            'name', g.name
-                        )
-                    ) FILTER (WHERE g.id IS NOT NULL),
-                    '[]'
-                ) AS genres
-            FROM audio a
-            LEFT JOIN audio_genres ag
-                ON ag.audio_id = a.id
-            LEFT JOIN genres g
-                ON g.id = ag.genre_id
-            GROUP BY a.id
-            ORDER BY a.id;
+                al.id AS album_id,
+                al.title,
+                al.album_type,
+                al.cover_art_url,
+                al.release_date,
+                al.status,
+
+                a.id AS audio_id,
+                a.duration,
+                a.audio_key,
+                a.audio_tagged_url,
+                a.bpm,
+                a.license_id,
+                a.price,
+                a.date_created,
+                a.date_updated,
+
+                aa.track_number
+
+            FROM album_audio aa
+            JOIN album al ON al.id = aa.album_id
+            JOIN audio a ON a.id = aa.audio_id
+            ORDER BY al.id, aa.track_number
         `);
 
         return res.status(200).json(audios);
@@ -253,7 +258,7 @@ audio.get('/all', async (req, res, next) => {
 });
 
 
-audio.get('/single/available', async (req, res, next) => {
+audio.get('/available', async (req, res, next) => {
     try {
         const audios = await db.any(`
             SELECT
@@ -286,6 +291,8 @@ audio.get('/single/available', async (req, res, next) => {
 });
 
 
+
+
 audio.get('/single/:id', requireAdmin, async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -306,6 +313,83 @@ audio.get('/single/:id', requireAdmin, async (req, res, next) => {
         next();
     }
 });
+
+
+audio.get('/single/list/available', requireAdmin, async(req, res, next) => {
+    try {
+        const result = await db.any(`
+            SELECT 
+                a.id AS audio_id,
+                a.audio_tagged_url,
+                a.duration,  
+                
+                al.id AS album_id,
+                al.title,
+                al.cover_art_url,
+
+                aa.track_number
+                
+            FROM album_audio aa
+            JOIN audio a ON a.id = aa.audio_id
+            JOIN album al ON al.id = aa.album_id
+            WHERE al.status = 'available';
+        `);
+
+        return res.json(result);
+    } catch (err) {
+        console.error('Failed retrieve single track: ', err);
+        next(err);
+    }
+});
+
+
+audio.get('/beat_tape/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const track = await db.one(`
+            SELECT * FROM audio WHERE id = $1;
+        `, [id]);
+
+        console.log('Selected: ', track.id);
+        return res.json({
+            ...track,
+            track_id: track.id
+        })
+
+    } catch(err) {
+        console.log('Error on this motherfucking bitch: ', err);
+    }
+});
+
+
+// audio.post('/beat_tape/upload', requireAdmin, async (req, res, next) => {
+//     try {
+//         const { audio_id, title, release_date } = req.body;
+
+//         const covert_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
+
+//         const result = await db.tx(async tran => {
+//             const album = await db.oneOrNone(`
+//                 INSERT INTO album ( title, album_type, cover_art_url, release_date, price ) 
+//                 VALUES ($1, beat_tape, $2, $3, $4)
+//                 RETURNING id, title
+//             `, [ title, covert_art_url, release_date, price ]);
+    
+//             const album_audio = await db.oneOrNone(`
+                
+//             `);
+//         })
+
+        
+
+
+
+//     } catch (err) {
+//         console.log('Failed to upload beat_tape: ', err);
+//         next(err);
+//     }
+// });
 
 
 export default audio;

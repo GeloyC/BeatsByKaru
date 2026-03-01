@@ -122,7 +122,7 @@ const Create = () => {
     const { mutate: trackUpload } = useMutation({
         mutationFn: async (FormData) => {
             try {
-                const response = await axios.post(`${base_url}/audio/upload-single`, FormData , {
+                const response = await axios.post(`${base_url}/audio/upload-track`, FormData , {
                     withCredentials: true
                 });
     
@@ -192,11 +192,6 @@ const Create = () => {
                                 <label htmlFor="Beat_Tape" className={`${isTypeSelected === 'Beat_Tape' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
                                     Beat Tape
                                     <input type="radio" name="type" id="Beat_Tape" value={'Beat_Tape'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
-                                </label>
-
-                                <label htmlFor="Bundle" className={`${isTypeSelected === 'Bundle' ? 'border-b-4 border-b-[#007F80] text-[#007F80]' : ''} hover:bg-[#EEE] active:bg-[#FFF]  p-2 px-4 font-bold cursor-pointer whitespace-nowrap`}>
-                                    Bundle
-                                    <input type="radio" name="type" id="Bundle" value={'Bundle'} onChange={(e) => setIsTypeSelected(e.target.value)} hidden/>
                                 </label>
 
                                 {!isTypeSelected && (

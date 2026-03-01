@@ -14,10 +14,6 @@ const UnpublishedTracks = ({
     
     const { refAudio, playingId, toggleAudioPlay} = useAudioPlayer();
     
-    // states
-    // const [isMultiple, setIsMultiple] = useState(false);
-    // const [selectedTracks, setSelectedTracks] = useState([selectedTrackID]);
-
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -105,9 +101,9 @@ const UnpublishedTracks = ({
 
                 <div className='flex w-full items-end justify-end gap-1 pt-3'>
                     {selectedTrackID && (
-                        <button onClick={() => {selectTrack(selectedTrackID);}} className='bg-[#03f8c5] p-2 rounded-[5px] hover:opacity-75 active:opacity-100'>Select</button>
+                        <button onClick={() => {selectTrack(selectedTrackID);}} className='bg-[#03f8c5] p-2 rounded-[5px] hover:opacity-75 active:opacity-100'>Continue</button>
                     )}
-                    <button className='bg-[#BABABA] p-2 rounded-[5px] hover:opacity-75 active:opacity-100' onClick={closeTrackList}>Close</button>
+                    <button className='bg-[#BABABA] p-2 rounded-[5px] hover:opacity-75 active:opacity-100' onClick={closeTrackList}>Cancel</button>
                 </div>
             </div>
         </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useLicense } from '../../../Hooks/LicenseHook.js'
 import UnpublishedTracks from './UnpublishedTracks.jsx';
-import { useAudio, selectedTrackSingle } from '../../../Hooks/AudioHooks.js';
+import { useAvailable, selectedTrackSingle } from '../../../Hooks/AudioHooks.js';
 import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 
@@ -24,7 +24,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
     const [openTrackList, setOpenTrackList] = useState(false);
 
     const { data: license = [] } = useLicense();
-    const { data: audios = [] } = useAudio();
+    const { data: audios = [] } = useAvailable();
     
     
     const handlePreviewCoverArt = (e) => {
@@ -112,7 +112,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
         <div className='grid grid-cols-2 w-full'>
             <div className='flex flex-col w-full gap-5'>
                 <div className='flex flex-col items-start w-full'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Select track</span>
+                    <span className='font-bold text-[#1E1E1E] opacity-75'>Select a Track</span>
                     {selectedTrack && !openTrackList ? (
                         <div className='flex w-full items-center justify-start gap-2 border-2 border-[#007F80] p-1 px-2 rounded-[10px] bg-[#03f8c5]'>
                             <div className='flex w-full items-center justify-start gap-2'>
@@ -129,7 +129,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
                             <button onClick={() => setOpenTrackList(true)} className='whitespace-nowrap opacity-50 hover:opacity-100 hover:font-bold active:opacity-50'>Choose another</button>
                         </div>
                     ) : (
-                        <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-1 rounded-full border-2 border-[#2A2A2A]  transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#EEE] active:border-[#BABABA] active:bg-[#FFF]' : 'opacity-25'}`}>
+                        <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-1 py-2 rounded-full border-2 border-[#2A2A2A]  transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#EEE] active:border-[#BABABA] active:bg-[#FFF]' : 'opacity-25'}`}>
                             +
                         </button>
                     )}
@@ -137,7 +137,7 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
 
                 <div className='flex flex-col w-full gap-2'>
                     <span className='font-bold text-[#1E1E1E] opacity-75'>Title (Single)</span>
-                    <input type="text" 
+                    <input type="text" placeholder='Enter title for this Single'
                         value={singleTitle}
                         onChange={(e) => setSingleTitle(e.target.value)} className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
                 </div>
