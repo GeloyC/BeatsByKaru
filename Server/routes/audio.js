@@ -237,7 +237,6 @@ audio.get('/all', async (req, res, next) => {
                 a.audio_tagged_url,
                 a.bpm,
                 a.license_id,
-                a.price,
                 a.date_created,
                 a.date_updated,
 
@@ -324,6 +323,7 @@ audio.get('/single/list/available', requireAdmin, async(req, res, next) => {
                 a.duration,  
                 
                 al.id AS album_id,
+                al.cover_art_url,
                 al.title,
                 al.cover_art_url,
 
@@ -363,33 +363,7 @@ audio.get('/beat_tape/:id', async (req, res) => {
 });
 
 
-// audio.post('/beat_tape/upload', requireAdmin, async (req, res, next) => {
-//     try {
-//         const { audio_id, title, release_date } = req.body;
 
-//         const covert_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
-
-//         const result = await db.tx(async tran => {
-//             const album = await db.oneOrNone(`
-//                 INSERT INTO album ( title, album_type, cover_art_url, release_date, price ) 
-//                 VALUES ($1, beat_tape, $2, $3, $4)
-//                 RETURNING id, title
-//             `, [ title, covert_art_url, release_date, price ]);
-    
-//             const album_audio = await db.oneOrNone(`
-                
-//             `);
-//         })
-
-        
-
-
-
-//     } catch (err) {
-//         console.log('Failed to upload beat_tape: ', err);
-//         next(err);
-//     }
-// });
 
 
 export default audio;

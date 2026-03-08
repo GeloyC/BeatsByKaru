@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from 'axios';
 
-const base_url = 'http://localhost:5000';
+const base_url = import.meta.env.VITE_API_BASE_URL;
 
 export function useGenre() {
   return useQuery({

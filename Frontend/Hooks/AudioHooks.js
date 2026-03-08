@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryErrorResetBoundary } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryErrorResetBoundary } from "@tanstack/react-query";
 import axios from 'axios';
 
-const base_url = 'http://localhost:5000';
+const base_url = import.meta.env.VITE_API_BASE_URL;
 
 export function useAudio() {
     return useQuery({
@@ -51,7 +51,6 @@ export function useSingle() {
 }
 
 
-
 export function useAvailable() {
     return useQuery({
         queryKey: ['single'],
@@ -68,6 +67,26 @@ export function useAvailable() {
                 return response.data ?? [];
             } catch (err) {
                 console.error('Error retreiving audio data: ', err);
+                throw err;
+            }
+        }
+    });
+}
+
+export function useSingleAvailable() {
+    return useQuery({
+        queryKey: ['SingleAvailable'],
+        queryFn: async () => {
+            try {
+                const response = await axios.get(`${base_url}/audio/single/list/available`, { withCredentials: true });
+
+                if (!response.data) {
+                    throw new Error('No audios returned');
+                }
+
+                return response.data ?? [];
+            } catch (err) {
+                console.error("Error retrieving 'Available' singles track: ", err);
                 throw err;
             }
         }

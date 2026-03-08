@@ -76,8 +76,8 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
 
 
         updateSingleReleaseNow(trackReleaseForm);
-
     }
+
 
     const { mutate: updateSingleReleaseNow } = useMutation({
         mutationFn: async (formData) => {

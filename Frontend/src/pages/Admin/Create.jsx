@@ -160,12 +160,6 @@ const Create = () => {
 
     const [audioSelected, setAudioSelected] = useState('');
 
-    // const handleSelectSingle = (audio_id) => {
-    //     setAudioSelected(prev => prev === audio_id ? audio_id : null)
-    //     console.log(audio_id);
-    //     console.log(audioSelected);
-    // }
-
 
     return (
         <>

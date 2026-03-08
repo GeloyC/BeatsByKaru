@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import UnpublishedTracks from './UnpublishedTracks'
-import { useAvailable } from '../../../Hooks/AudioHooks.js';
+import { useSingleAvailable } from '../../../Hooks/AudioHooks.js';
 import { useLicense } from '../../../Hooks/LicenseHook.js'
 
 import axios from 'axios';
-import SingleList from './SingleList.jsx';
+import SingleTracks from './SingleTracks.jsx';
 
 const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
 
@@ -20,7 +20,7 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
     const [beatTapeTitle, setBeatTapeTitle] = useState('');
     
     // Data
-    const { data: audios = [] } = useAvailable();
+    const { data: singleTracks = [] } = useSingleAvailable();
     const { data: license = [] } = useLicense();
 
     const handlePreviewCoverArt = (e) => {
@@ -182,18 +182,14 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
                 </div>
             </div>
 
-            {/* {openTrackList && (
-                <UnpublishedTracks 
-                    tracks={audios} 
-                    onSelectTrack={setSelectedTrackId} 
-                    selectTrack={fetchMultipleTrack}
-                    closeTrackList={() => {setOpenTrackList(prev => !prev); setSelectedTrackId([]); setBeatTapeSelection([])}}
+            {openTrackList && (
+                <SingleTracks 
+                    tracks={singleTracks}
                     selectedTrackID={selectedTrackId}
-                    typeSelection={typeSelected}
+                    onSelectTrack={setSelectedTrackId}
                 />
-            )} */}
+            )}
 
-            <SingleList />
         </div>
     )
 }
