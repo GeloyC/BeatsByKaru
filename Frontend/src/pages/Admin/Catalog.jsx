@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react'
 import TopNav from '../../components/AdminComponent/TopNav'
 import SideNav from '../../components/AdminComponent/SideNav'
-import { useSingle } from '../../../Hooks/AudioHooks.js'
+import { useSingle} from '../../../Hooks/AudioHooks.js'
 
 const Catalog = () => {
 
-    const { data: audios = [] } = useSingle();
+    const { data: singleTracks = [] } = useSingle();
     
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
@@ -64,7 +64,7 @@ const Catalog = () => {
                         </div>
 
                         <div className='flex flex-col w-full'>
-                            {audios.map((audio) => (
+                            {singleTracks.map((audio) => (
                                 <div key={audio.album_id} className='grid grid-cols-[5%_10%_20%_10%_10%_10%_15%_10%_10%] place-items-center w-full h-[40px] border-b border-[#CCC] hover:bg-[#EEE]'>
                                     <div className='flex items-center w-full text-[14px]'>{audio.album_id}</div>
                                     <div className='flex items-center w-full text-[14px]'>{formatTime(audio.duration)}</div>

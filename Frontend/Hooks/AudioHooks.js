@@ -50,7 +50,8 @@ export function useSingle() {
     });
 }
 
-
+// To use for uploading Singles Track
+// Retrieve unpublished tracks that are available to publish as 'Single'
 export function useAvailable() {
     return useQuery({
         queryKey: ['single'],
@@ -73,6 +74,8 @@ export function useAvailable() {
     });
 }
 
+// Retrieve Singles Tracked that are available
+// Can be used to publish in a Beat Tape
 export function useSingleAvailable() {
     return useQuery({
         queryKey: ['SingleAvailable'],

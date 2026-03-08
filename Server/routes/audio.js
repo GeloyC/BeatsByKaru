@@ -229,6 +229,7 @@ audio.get('/all', async (req, res, next) => {
                 al.album_type,
                 al.cover_art_url,
                 al.release_date,
+                al.price,
                 al.status,
 
                 a.id AS audio_id,
@@ -342,7 +343,6 @@ audio.get('/single/list/available', requireAdmin, async(req, res, next) => {
     }
 });
 
-
 audio.get('/beat_tape/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -363,6 +363,48 @@ audio.get('/beat_tape/:id', async (req, res) => {
 });
 
 
+audio.post('/beat_tape/upload', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]), async (req, res, next) => {
+    try {
+        const { audio_id, title, release_date, price } = req.body;
+        const audioId = JSON.parse(audio_id);
+        const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
+
+
+        // transaction
+        const result = await db.tx( async tran => {
+            const album = await tran.one(`
+                INSERT INTO album ( title, album_type, cover_art_url, release_date, price ) VALUES ($1, 'beat_tape', $2, $3, $4) 
+                RETURNING id
+            `, [ title, cover_art_url, release_date, price ]);
+
+            const album_audio = await tran.any(`
+                INSERT INTO album_audio (album_id, audio_id, track_number)
+                SELECT
+                    $1,
+                    x.audio_id,
+                    x.track_number
+                FROM unnest($2::int[]) WITH ORDINALITY AS x(audio_id, track_number)
+                RETURNING album_id, audio_id, track_number
+            `, [album.id, audioId]);
+
+            if(!album_audio) throw new Error('album_audio error:');
+
+            return {
+                album,
+                tracks: album_audio
+            };
+        });
+
+        return res.json({
+            sucess: true,
+            data: result
+        });
+
+    } catch (err) {
+        console.error('Beat tape error: ', err);
+        next(err);
+    }
+});
 
 
 

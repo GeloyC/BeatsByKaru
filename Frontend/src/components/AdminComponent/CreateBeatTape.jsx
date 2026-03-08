@@ -5,8 +5,11 @@ import { useLicense } from '../../../Hooks/LicenseHook.js'
 
 import axios from 'axios';
 import SingleTracks from './SingleTracks.jsx';
+import { useMutation } from '@tanstack/react-query';
 
 const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
+
+    const base_url = import.meta.env.VITE_API_BASE_URL;
 
     const [selectedTrackId, setSelectedTrackId] = useState([]); // Array so multiple selection is valid
     const [openTrackList, setOpenTrackList] = useState(false);
@@ -15,9 +18,9 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
     const [coverArtBlob, setCoverArtBlob] = useState(null);
 
     const [beatTapeSelection, setBeatTapeSelection] = useState([]);
-    const [trackOrder, setTrackOrder] = useState('');
     const [releaseDate, setReleaseDate] = useState('')
     const [beatTapeTitle, setBeatTapeTitle] = useState('');
+    const [price, setPrice] = useState('');
     
     // Data
     const { data: singleTracks = [] } = useSingleAvailable();
@@ -36,8 +39,6 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
         setCoverArtBlob(imageFile);
     }
     
-
-    console.log('Selected track id: ', selectedTrackId, typeof selectedTrackId);
 
     const fetchMultipleTrack = async () => {
         for (const track of selectedTrackId ) {
@@ -81,12 +82,33 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
             return moveTrackOrder(prev, fromIndex, clamped)
         });
     }
-
-
-    const handleUploadBeatTape = () => {
-        
-    }
     
+    const handleUploadBeatTape = () => {
+        const beatTapeForm = new FormData();
+
+        beatTapeForm.append('audio_id', JSON.stringify(selectedTrackId));
+        beatTapeForm.append('title', beatTapeTitle);
+        beatTapeForm.append('cover_art', coverArtBlob);
+        beatTapeForm.append('release_date', releaseDate);
+        beatTapeForm.append('price', price);
+
+        console.log([...beatTapeForm.entries()]);
+        beatTapeUpload(beatTapeForm);
+    }
+
+    
+    const {mutate: beatTapeUpload} = useMutation({
+        mutationKey: ['beat_tape'],
+        mutationFn: async (payload) => {
+            try {
+                const response = await axios.post(`${base_url}/audio/beat_tape/upload`, payload, { withCredentials: true });
+                console.log('Beat Tape upload reponse: ', response);
+                return response.data;
+            } catch(err) {
+                console.error('Failed to publish beat_tape: ', err);
+            }
+        }
+    });
 
     return (
         <div className='grid grid-cols-2 w-full'>
@@ -113,13 +135,13 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
                                  */}
 
                                 {beatTapeSelection.map((beatTape, index) => (
-                                    <div key={beatTape.id} className='grid grid-cols-[10%_90%] w-full gap-1'>
+                                    <div key={beatTape.id} className='flex items-center w-full gap-1'>
                                         <input type="text" id={`track_id_${beatTape.id}`} name="track_order" 
                                         min={1}
                                         max={beatTapeSelection.length}
                                         value={index + 1} 
                                         onChange={(e) => handleTrackOrderChange(index, e.target.value)} 
-                                        className='flex w-full p-1 px-2 rounded-[10px] border-2 border-[#BABABA]'/>
+                                        className='w-[40px] p-1 px-2 rounded-[10px] border-2 border-[#BABABA] text-center'/>
 
                                         <div key={beatTape.id} className='flex items-center justify-between w-full p-1 px-2 rounded-[10px] border-2 border-[#005F60] bg-[#03f8c5]'>
                                             <span>{beatTape.title}</span>
@@ -164,6 +186,7 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
                     <span className='font-bold text-[#1E1E1E] opacity-75'>Price</span>
 
                     <input type="text" placeholder={`Set a price for "${beatTapeTitle || '[Beat Tape Title]'}"`}
+                    value={price} onChange={(e) => setPrice(e.target.value)}
                     className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
                 </div>  
 
@@ -178,7 +201,7 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
                 </div>
 
                 <div className='flex items-center gap-1 w-full justify-end'>
-                    <button className='px-4 py-1 bg-[#03f8c5] border border-[#007F80] rounded-[5px] hover:opacity-50 active:opacity-100'>Save changes</button>
+                    <button onClick={handleUploadBeatTape} className='px-4 py-1 bg-[#03f8c5] border border-[#007F80] rounded-[5px] hover:opacity-50 active:opacity-100'>Save changes</button>
                 </div>
             </div>
 
@@ -187,6 +210,7 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
                     tracks={singleTracks}
                     selectedTrackID={selectedTrackId}
                     onSelectTrack={setSelectedTrackId}
+                    fetchTracks={fetchMultipleTrack}
                 />
             )}
 
