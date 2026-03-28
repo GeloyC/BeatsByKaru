@@ -1,9 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom';
-import { useQuery,useQueryClient } from '@tanstack/react-query';
 import NavigationBar from '../../components/NavigationBar';
 import Footer from '../../components/Footer';
-import { useAvailable } from '../../../Hooks/AudioHooks';
+import { useSingle } from '../../../Hooks/AudioHooks.js';
 import { useGenre } from '../../../Hooks/GenreHook';
 
 const AllMusic = () => {
@@ -47,7 +46,7 @@ const AllMusic = () => {
         }
     }
 
-    const {data: audios = [] } = useAvailable();
+    const {data: audios = [] } = useSingle();
     const {data: genres = [] } = useGenre();
 
     const filteredGenre = useMemo(() => {
@@ -143,14 +142,14 @@ const AllMusic = () => {
                 {/* Contents */}
                 <div className='flex flex-col h-auto w-full'>
                         {filteredGenre?.map((audio) => (
-                        <div key={audio.id} className='grid grid-cols-[5%_5%_20%_25%_10%_10%_10%_15%] place-items-center justify-items-start w-full h-auto py-2 border-b border-[#DDD]'>
+                        <div key={audio.album_id} className='grid grid-cols-[5%_5%_20%_25%_10%_10%_10%_15%] place-items-center justify-items-start w-full h-auto py-2 border-b border-[#DDD]'>
                             <div className='flex items-center justify-center overflow-hidden w-full'>
                                 <img src={audio.cover_art_url} alt="" className='size-10 object-cover'/>
                             </div>
     
                             <div className='flex items-center justify-center overflow-hidden w-full opacity-50 hover:opacity-100 active:opacity-50 cursor-pointer'>
-                                <button onClick={() => toggleAudioPlay(audio.id)}>
-                                    <img src={`/src/assets/icons/${playingId === audio.id ? 'pause' : 'play'}_black.png`} alt="play button" className='size-8 object-cover'/>
+                                <button onClick={() => toggleAudioPlay(audio.audio_id)}>
+                                    <img src={`/src/assets/icons/${playingId === audio.audio_id ? 'pause' : 'play'}_black.png`} alt="play button" className='size-8 object-cover'/>
                                 </button>
                             </div>
                             <span className='flex flex-col w-full text-[16px] text-[#141414]'>
@@ -159,7 +158,7 @@ const AllMusic = () => {
                                     {audio.genres?.map(genre => ( genre.name )).join(', ')}
                                 </span>
                             </span>
-                            <audio ref={(aud) => {audioRef.current[audio.id] = aud}} src={audio.audio_tagged_url} controls></audio>
+                            <audio ref={(aud) => {audioRef.current[audio.audio_id] = aud}} src={audio.audio_tagged_url} controls></audio>
                             <span className='flex w-full text-[16px] text-[#141414]'>{formatTime(audio.duration)}</span>
                             <span className='flex w-full text-[16px] text-[#141414]'>{audio.audio_key}</span>
                             <span className='flex w-full text-[16px] text-[#141414]'>{audio.bpm}</span>
@@ -174,7 +173,7 @@ const AllMusic = () => {
                 
 
                 <div className='flex flex-col w-full items-start gap-2 py-[2rem]'>
-                    <span className='text-[24px] text-[#141414] font-bold'>Bundles</span>
+                    <span className='text-[24px] text-[#141414] font-bold'>Beat Tapes</span>
                     <div className='grid grid-cols-5 w-full gap-2'>
 
                         <div className='flex flex-col justify-center border border-[#DDDDDD] bg-[#EEEEEE] box-border transform transition-all duration-100 t hover:-translate-y-0.5 hover:bg-[#DDD] active:bg-[#EEEEEE] p-4 rounded-[5px]'>

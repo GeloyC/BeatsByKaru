@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react'
-import TopNav from '../../components/AdminComponent/TopNav'
-import SideNav from '../../components/AdminComponent/SideNav'
-import { useSingle} from '../../../Hooks/AudioHooks.js'
+import TopNav from '../../components/AdminComponent/TopNav.jsx'
+import SideNav from '../../components/AdminComponent/SideNav.jsx'
+import { useSingle } from '../../../Hooks/AudioHooks.js'
 
-const Catalog = () => {
+const CatalogSingles = () => {
 
     const { data: singleTracks = [] } = useSingle();
     
@@ -48,7 +48,7 @@ const Catalog = () => {
                 <SideNav />
 
                 <div className='flex flex-col justify-start w-full p-5 bg-[#FFF]'>
-                    <span className='text-[28px] font-bold text-[#141414]'>Catalog</span>
+                    <span className='text-[28px] font-bold text-[#141414]'>Singles</span>
 
                     <div className='flex flex-col w-full h-auto pt-[1rem] gap-2'>
                         <div className='grid grid-cols-[5%_10%_20%_10%_10%_10%_15%_10%_10%] place-items-start w-full h-[25px] border-b border-[#6A6A6A]'>
@@ -99,4 +99,4 @@ const Catalog = () => {
     )
 }
 
-export default Catalog
+export default CatalogSingles

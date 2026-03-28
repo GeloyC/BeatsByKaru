@@ -185,52 +185,52 @@ audio.patch('/single/:id/release', requireAdmin, upload.fields([{name: 'cover_ar
 });
 
 
-audio.get('/pending', async (req, res, next) => {
-    try {
-        const audios = await db.any(`
-            SELECT
-                a.*,
-                COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'id', g.id,
-                            'name', g.name
-                        )
-                    ) FILTER (WHERE g.id IS NOT NULL),
-                    '[]'
-                ) AS genres
-            FROM audio a
-            LEFT JOIN audio_genres ag
-                ON ag.audio_id = a.id
-            LEFT JOIN genres g
-                ON g.id = ag.genre_id
-            WHERE a.status = 'pending'
-            GROUP BY a.id
-            ORDER BY a.id;
-        `);
+// audio.get('/pending', async (req, res, next) => {
+//     try {
+//         const audios = await db.any(`
+//             SELECT
+//                 a.*,
+//                 COALESCE(
+//                     json_agg(
+//                         json_build_object(
+//                             'id', g.id,
+//                             'name', g.name
+//                         )
+//                     ) FILTER (WHERE g.id IS NOT NULL),
+//                     '[]'
+//                 ) AS genres
+//             FROM audio a
+//             LEFT JOIN audio_genres ag
+//                 ON ag.audio_id = a.id
+//             LEFT JOIN genres g
+//                 ON g.id = ag.genre_id
+//             WHERE a.status = 'pending'
+//             GROUP BY a.id
+//             ORDER BY a.id;
+//         `);
 
-        return res.status(200).json(audios);
+//         return res.status(200).json(audios);
 
-    } catch (err) {
-        next(err)
-        console.error('Failed to retrieve audio data: ', err);
-    }
-});
+//     } catch (err) {
+//         next(err)
+//         console.error('Failed to retrieve audio data: ', err);
+//     }
+// });
 
 
 // Retreiving all the details 
 // Displays on the catalog page in admin
-audio.get('/all', async (req, res, next) => {
+audio.get('/singles', async (req, res, next) => {
     try {
         const audios = await db.any(`
             SELECT
                 al.id AS album_id,
                 al.title,
-                al.album_type,
                 al.cover_art_url,
                 al.release_date,
                 al.price,
                 al.status,
+                al.album_type,
 
                 a.id AS audio_id,
                 a.duration,
@@ -241,12 +241,51 @@ audio.get('/all', async (req, res, next) => {
                 a.date_created,
                 a.date_updated,
 
+                COALESCE(
+                    (
+                        SELECT json_agg(
+                            json_build_object(
+                                'id', g2.id,
+                                'name', g2.name
+                            )
+                        )
+                        FROM (
+                            SELECT DISTINCT g.id, g.name
+                            FROM audio_genres ag2
+                            JOIN genres g ON g.id = ag2.genre_id
+                            WHERE ag2.audio_id = a.id
+                        ) g2
+                    ),
+                    '[]'::json
+                ) AS genres,
+
                 aa.track_number
 
             FROM album_audio aa
             JOIN album al ON al.id = aa.album_id
             JOIN audio a ON a.id = aa.audio_id
-            ORDER BY al.id, aa.track_number
+            LEFT JOIN audio_genres ag ON ag.audio_id = a.id
+            LEFT JOIN genres g ON g.id = ag.genre_id
+
+            WHERE album_type = 'single'
+
+            GROUP BY
+                al.id,
+                al.title,
+                al.album_type,
+                al.cover_art_url,
+                al.release_date,
+                al.price,
+                a.id,
+                a.duration,
+                a.audio_key,
+                a.audio_tagged_url,
+                a.bpm,
+                a.license_id,
+                a.date_created,
+                aa.track_number
+
+            ORDER BY al.id, aa.track_number;
         `);
 
         return res.status(200).json(audios);
@@ -256,6 +295,61 @@ audio.get('/all', async (req, res, next) => {
         console.error('Failed to retrieve audio data: ', err);
     }
 });
+
+
+audio.get('/beat-tapes', requireAdmin, async (req, res) => {
+    try {
+        const response = await db.any(`
+            SELECT
+                al.id AS album_id,
+                al.title,
+                al.cover_art_url,
+                al.release_date,
+                al.price,
+                al.status,
+                al.album_type,
+
+                CASE 
+                    WHEN al.album_type = 'beat_tape' THEN
+                        json_agg(
+                            json_build_object(
+                                'audio_id', a.id,
+                                'title', a.title,
+                                'duration', a.duration,
+                                'audio_key', a.audio_key,
+                                'audio_tagged_url', a.audio_tagged_url,
+                                'track_number', aa.track_number
+                            )
+                            ORDER BY aa.track_number
+                        )
+                    ELSE NULL
+                END AS tracks
+
+            FROM album al
+            JOIN album_audio aa ON aa.album_id = al.id
+            JOIN audio a ON a.id = aa.audio_id
+
+            WHERE 
+                al.album_type = 'beat_tape'
+
+            GROUP BY
+                al.id,
+                al.title,
+                al.cover_art_url,
+                al.release_date,
+                al.price,
+                al.status,
+                al.album_type
+
+            ORDER BY al.id;
+        `);
+
+        return res.status(200).json(response);
+    } catch (err) {
+        console.error('Error retrie');
+    }
+})
+
 
 
 audio.get('/available', async (req, res, next) => {
@@ -318,7 +412,7 @@ audio.get('/single/:id', requireAdmin, async (req, res, next) => {
 audio.get('/single/list/available', requireAdmin, async(req, res, next) => {
     try {
         const result = await db.any(`
-            SELECT 
+            SELECT DISTINCT  
                 a.id AS audio_id,
                 a.audio_tagged_url,
                 a.duration,  
@@ -326,14 +420,14 @@ audio.get('/single/list/available', requireAdmin, async(req, res, next) => {
                 al.id AS album_id,
                 al.cover_art_url,
                 al.title,
-                al.cover_art_url,
 
                 aa.track_number
                 
             FROM album_audio aa
             JOIN audio a ON a.id = aa.audio_id
             JOIN album al ON al.id = aa.album_id
-            WHERE al.status = 'available';
+            WHERE al.status = 'available'
+            AND al.album_type = 'single';  
         `);
 
         return res.json(result);
@@ -342,6 +436,7 @@ audio.get('/single/list/available', requireAdmin, async(req, res, next) => {
         next(err);
     }
 });
+
 
 audio.get('/beat_tape/:id', async (req, res) => {
     try {

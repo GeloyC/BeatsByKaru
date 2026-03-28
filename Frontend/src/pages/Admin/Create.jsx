@@ -7,7 +7,7 @@ import { AudioPeakExtract } from '../../../util/AudioPeakExtract.js'
 import { useGenre } from '../../../Hooks/GenreHook'
 import { useMutation } from '@tanstack/react-query'
 import CreateSingle from '../../components/AdminComponent/CreateSingle.jsx'
-import { useAudio } from '../../../Hooks/AudioHooks.js'
+// import { useAudio } from '../../../Hooks/AudioHooks.js'
 import UnpublishedTracks from '../../components/AdminComponent/UnpublishedTracks.jsx'
 import CreateBeatTape from '../../components/AdminComponent/CreateBeatTape.jsx'
 
@@ -76,7 +76,7 @@ const Create = () => {
     }
 
     const { data: genres = [] } = useGenre();
-    const { data: audios = [] } = useAudio();
+    // const { data: audios = [] } = useAudio();
 
     const [selectedGenres, setSelectedGenres] = useState([]);
     const HandleGenreChange = (e) => {

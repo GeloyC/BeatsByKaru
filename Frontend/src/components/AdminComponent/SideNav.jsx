@@ -17,9 +17,15 @@ const SideNav = () => {
                 <Link to="/create" className={`${location.pathname === '/create' ? 'bg-[#DDD]' : 'hover:bg-[#BBB]'} p-2 rounded-[5px] text-[14px] font-bold`}>
                     Create
                 </Link>
-                <Link to="/catalog" className={`${location.pathname === '/catalog' ? 'bg-[#DDD]' : 'hover:bg-[#BBB]'} p-2 rounded-[5px] text-[14px] font-bold`}>
-                    Catalog
-                </Link>
+                <div className='flex flex-col w-full gap-1 p-2'>
+                    <span className='text-[12px] font-bold text-[#141414]/50'>Catalog</span>
+                    <Link to="/catalog/singles" className={`${location.pathname === '/catalog/singles' ? 'bg-[#DDD]' : 'hover:bg-[#BBB]'} p-2 rounded-[5px] text-[14px] font-bold`}>
+                        Singles
+                    </Link>
+                    <Link to="/catalog/beat-tapes" className={`${location.pathname === '/catalog/beat-tapes' ? 'bg-[#DDD]' : 'hover:bg-[#BBB]'} p-2 rounded-[5px] text-[14px] font-bold`}>
+                        Beat Tapes
+                    </Link>
+                </div>
             </div>
 
 

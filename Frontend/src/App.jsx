@@ -13,7 +13,8 @@ import Manage from './pages/Admin/Manage.jsx'
 import Create from './pages/Admin/Create.jsx'
 import Login from './pages/Admin/Login.jsx'
 import EditGenre from './components/AdminComponent/EditGenre.jsx'
-import Catalog from './pages/Admin/Catalog.jsx'
+import CatalogSingles from './pages/Admin/CatalogSingles.jsx'
+import CatalogBeatTapes from './pages/Admin/CatalogBeatTapes.jsx'
 
 function App() {
   
@@ -33,7 +34,8 @@ function App() {
         <Route path='dashboard' element={ user ? <Dashboard /> : <Navigate to='/admin'/>}/>
         <Route path='manage' element={ user ? <Manage /> : <Navigate to='/admin'/>}/>
         <Route path='create' element={ user ? <Create /> : <Navigate to='/admin'/>}/>
-        <Route path='catalog' element={ user ? <Catalog /> : <Navigate to='/admin' /> }/>
+        <Route path='catalog/singles' element={ user ? <CatalogSingles /> : <Navigate to='/admin' /> }/>
+        <Route path='catalog/beat-tapes' element={ user ? <CatalogBeatTapes /> : <Navigate to='/admin' /> }/>
     </Routes>
   )
 }

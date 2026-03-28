@@ -3,43 +3,14 @@ import axios from 'axios';
 
 const base_url = import.meta.env.VITE_API_BASE_URL;
 
-export function useAudio() {
-    return useQuery({
-        queryKey: ['audio'],
-        queryFn: async () => {
-            try {
-                const response = await axios.get(`${base_url}/audio/pending`, {
-                    withCredentials: true
-                });
-
-                if (!response.data) {
-                    throw new Error('No pending audios returned');
-                }
-
-                return response.data ?? [];
-            } catch (err) {
-                console.error('Error retreiving pending audio data: ', err);
-                throw err;
-            }
-        }, 
-        retry: false
-    });
-}
-
 export function useSingle() {
     return useQuery({
         queryKey: ['single'],
         queryFn: async () => {
             try {
-                const response = await axios.get(`${base_url}/audio/all`, {
+                const response = await axios.get(`${base_url}/audio/singles`, {
                     withCredentials: true
                 });
-
-                if (!response.data) {
-                    throw new Error('No audios returned');
-                }
-
-                console.log('Audio Single', response.data)
 
                 return response.data ?? [];
             } catch (err) {
@@ -47,6 +18,27 @@ export function useSingle() {
                 throw err;
             }
         }
+    });
+}
+
+
+// Beat tapes > tracks under is singles inside
+export function useBeatTapes() {
+    return useQuery({
+        queryKey: ['beat-tape'],
+        queryFn: async () => {
+            try {
+                const response = await axios.get(`${base_url}/audio/beat-tapes`, {
+                    withCredentials: true
+                })
+
+                return response?.data ?? [];
+
+            } catch (err) {
+                console.log('Failed to retreive beat tape data: ', err);
+            }
+        }
+
     });
 }
 

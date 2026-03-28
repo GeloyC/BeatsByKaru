@@ -31,21 +31,21 @@ const SingleTracks = ({ tracks, selectedTrackID, onSelectTrack, fetchTracks }) =
             <div className='flex flex-col items-start justify-start w-full py-2 gap-1'>
                 {tracks.map(track => (
                     <label key={track.album_id} htmlFor={`single_track_${track.audio_id}`} className={`flex items-center justify-between w-full gap-2 p-2 ${selectedTrackID.includes(track.audio_id) ? 'border-2 border-[#007F80]/50' : 'border border-[#2A2A2A]'} rounded-[10px] `}>
-                    <input type="checkbox" name="single_tracks" id={`single_track_${track.audio_id}`} value={track.audio_id} hidden onChange={handleTrackSelectionChange}/>
-                    <img src={track.cover_art_url} alt="cover-art" className='w-[40px] h-[40px] rounded-[5px]'/>
-                    <button onClick={() => toggleAudioPlay(track.album_id)} className='w-[30px] h-[30px] opacity-50 hover:opacity-100 active:opacity-50'>
-                        {playingId === track.audio_id ? (
-                            <img src={`/src/assets/icons/${selectedTrackID.includes(track.audio_id) ? 'pause_aquamarine' : 'pause_black'}.png`} alt="pause icon" />
-                        ) : (
-                            <img src={`/src/assets/icons/${selectedTrackID.includes(track.audio_id)? 'play_teal' : 'play_black'}.png`} alt="play icon" />
-                        )}
-                    </button>
-                    <div className='flex items-center justify-between w-full'>
-                        <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#007F80]' : 'text-[#141414]'}`}>{track.title}</span>
-                        <audio ref={aud => refAudio.current[track.audio_id] = aud } src={track.audio_tagged_url} controls hidden></audio>
+                        <input type="checkbox" name="single_tracks" id={`single_track_${track.audio_id}`} value={track.audio_id} hidden onChange={handleTrackSelectionChange}/>
+                        <img src={track.cover_art_url} alt="cover-art" className='w-[40px] h-[40px] rounded-[5px]'/>
+                        <button onClick={() => toggleAudioPlay(track.album_id)} className='w-[30px] h-[30px] opacity-50 hover:opacity-100 active:opacity-50'>
+                            {playingId === track.audio_id ? (
+                                <img src={`/src/assets/icons/${selectedTrackID.includes(track.audio_id) ? 'pause_aquamarine' : 'pause_black'}.png`} alt="pause icon" />
+                            ) : (
+                                <img src={`/src/assets/icons/${selectedTrackID.includes(track.audio_id)? 'play_teal' : 'play_black'}.png`} alt="play icon" />
+                            )}
+                        </button>
+                        <div className='flex items-center justify-between w-full'>
+                            <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#007F80]' : 'text-[#141414]'}`}>{track.title}</span>
+                            <audio ref={aud => refAudio.current[track.audio_id] = aud } src={track.audio_tagged_url} controls hidden></audio>
 
-                        <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#007F80]' : 'text-[#141414]'}`}>{formatTime(track.duration)}</span>
-                    </div>
+                            <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#007F80]' : 'text-[#141414]'}`}>{formatTime(track.duration)}</span>
+                        </div>
                     </label>  
                 ))}
             </div>
