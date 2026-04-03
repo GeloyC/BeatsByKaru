@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useAudioPlayer } from '../../../Hooks/useAudioPlayer.js'
 import { formatTime } from '../../../helpers/timeFormat.js';
 
-const SingleTracks = ({ tracks, selectedTrackID, onSelectTrack, fetchTracks }) => {
+const SingleTracks = ({ tracks, openTrackList, selectedTrackID, onSelectTrack, fetchTracks }) => {
     const { refAudio, playingId, toggleAudioPlay} = useAudioPlayer();
 
     // console.log('Track List for Single: ', tracks)
@@ -26,11 +26,11 @@ const SingleTracks = ({ tracks, selectedTrackID, onSelectTrack, fetchTracks }) =
 
     return (
         <div className='flex flex-col items-start gap-2 p-5 w-full'>
-            <span className='text-[18px] text-[#141414] font-bold'>Select from published Single</span>
+            <span className='text-[18px] text-[#FFF] font-bold'>Select from published Single</span>
 
             <div className='flex flex-col items-start justify-start w-full py-2 gap-1'>
                 {tracks.map(track => (
-                    <label key={track.album_id} htmlFor={`single_track_${track.audio_id}`} className={`flex items-center justify-between w-full gap-2 p-2 ${selectedTrackID.includes(track.audio_id) ? 'border-2 border-[#007F80]/50' : 'border border-[#2A2A2A]'} rounded-[10px] `}>
+                    <label key={track.album_id} htmlFor={`single_track_${track.audio_id}`} className={`flex items-center justify-between w-full gap-2 p-2 ${selectedTrackID.includes(track.audio_id) ? 'border border-[#03f8c5] bg-[#005F60]/15' : 'border border-[#FFF]/50'} rounded-[10px] `}>
                         <input type="checkbox" name="single_tracks" id={`single_track_${track.audio_id}`} value={track.audio_id} hidden onChange={handleTrackSelectionChange}/>
                         <img src={track.cover_art_url} alt="cover-art" className='w-[40px] h-[40px] rounded-[5px]'/>
                         <button onClick={() => toggleAudioPlay(track.album_id)} className='w-[30px] h-[30px] opacity-50 hover:opacity-100 active:opacity-50'>
@@ -41,10 +41,10 @@ const SingleTracks = ({ tracks, selectedTrackID, onSelectTrack, fetchTracks }) =
                             )}
                         </button>
                         <div className='flex items-center justify-between w-full'>
-                            <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#007F80]' : 'text-[#141414]'}`}>{track.title}</span>
+                            <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#03f8c5]' : 'text-[#FFF]'}`}>{track.title}</span>
                             <audio ref={aud => refAudio.current[track.audio_id] = aud } src={track.audio_tagged_url} controls hidden></audio>
 
-                            <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#007F80]' : 'text-[#141414]'}`}>{formatTime(track.duration)}</span>
+                            <span className={`${selectedTrackID.includes(track.audio_id) ? 'text-[#03f8c5]' : 'text-[#FFF]'}`}>{formatTime(track.duration)}</span>
                         </div>
                     </label>  
                 ))}
@@ -54,7 +54,7 @@ const SingleTracks = ({ tracks, selectedTrackID, onSelectTrack, fetchTracks }) =
                 <button onClick={fetchTracks} className='bg-[#03f8c5] px-4 py-2 rounded-[5px] hover:opacity-75 active:opacity-100'>
                     <span className='text-[#141414]'>Continue</span>
                 </button>
-                <button className='bg-[#BABABA] px-4 py-2 rounded-[5px] hover:opacity-75 active:opacity-100'>
+                <button onClick={openTrackList} className='bg-[#BABABA] px-4 py-2 rounded-[5px] hover:opacity-75 active:opacity-100'>
                     <span className='text-[#141414]'>Close</span>
                 </button>
             </div>

@@ -46,9 +46,9 @@ const TopNav = () => {
     });
 
     return (
-        <div className='sticky top-0 flex items-center justify-between w-full bg-[#FFF] px-4 py-2 border-b border-b-[#DDDDDD] z-10'>
+        <div className='sticky top-0 flex items-center justify-between w-full bg-[#141414] px-4 py-2 border-b border-b-[#FFF]/25 z-10'>
             <div className='flex items-center justify-center font-bold'>
-                Beats by Karu [ADMIN]
+                <span className='text-[#03f8c5]'>Beats by Karu [ADMIN]</span>
             </div>
 
 
@@ -56,7 +56,7 @@ const TopNav = () => {
                 
 
                 <div className='flex items-center gap-3 w-full'>
-                    <Link to='/' className='size-9 p-1.5 border border-[#CCC] bg-[#EEE] hover:bg-[#DDD] active:bg-[#EEE] rounded-full'>
+                    <Link to='/' className='size-9 p-1.5 border border-[#007F80] bg-[#03f8c5] hover:bg-[#DDD] active:bg-[#EEE] rounded-full'>
                         <img src="/src/assets/icons/home-page.png" alt="home-icon" />
                     </Link>
                     
@@ -64,9 +64,9 @@ const TopNav = () => {
                         <div className='flex w-full bg-[#FFF] h-auto'> ... </div>
                     ) : data ? (
                         <div onClick={() => setIsLogoutOpen(prev => !prev)} className='relative flex flex-col cursor-pointer active:opacity-50'>
-                            <span className="font-bold px-3 py-1 bg-[#EEE] rounded-[5px] border border-[#CCC]"> {data} </span>
+                            <span className="font-bold px-3 py-1 bg-[#03f8c5] rounded-[5px] border border-[#007F80]"> {data} </span>
                             {isLogoutOpen && (
-                                <button onClick={() => logout()} className='absolute -bottom-10 right-0 bg-[#FFF] border-[#CCC] border px-3 py-1 rounded-[5px] hover:bg-[#BBB] active:bg-[#CCC]'>Log out</button>
+                                <button onClick={() => logout()} className='absolute -bottom-10 right-0 bg-[#FFF] border-[#007F80] border px-3 py-1 rounded-[5px] hover:bg-[#BBB] active:bg-[#CCC]'>Log out</button>
                             )}
                         </div> 
                     ) : (

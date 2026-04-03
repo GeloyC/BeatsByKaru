@@ -110,11 +110,11 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
 
     return (
         <div className='grid grid-cols-2 w-full'>
-            <div className='flex flex-col w-full gap-5'>
-                <div className='flex flex-col items-start w-full'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Select a Track</span>
+            <div className='flex flex-col w-full gap-5'> 
+                <div className='flex flex-col items-start w-full gap-2'>
+                    <span className='text-[#FFF] opacity-75'>Select a Track</span>
                     {selectedTrack && !openTrackList ? (
-                        <div className='flex w-full items-center justify-start gap-2 border-2 border-[#007F80] p-1 px-2 rounded-[10px] bg-[#03f8c5]'>
+                        <div className='flex w-full items-center justify-start gap-2 border border-[#FFF] p-1 px-2 rounded-[10px] bg-[#03f8c5]'>
                             <div className='flex w-full items-center justify-start gap-2'>
                                 <button onClick={playAudio} className='w-[30px] h-[30px]'>
                                     {playing ? (
@@ -129,21 +129,22 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
                             <button onClick={() => setOpenTrackList(true)} className='whitespace-nowrap opacity-50 hover:opacity-100 hover:font-bold active:opacity-50'>Choose another</button>
                         </div>
                     ) : (
-                        <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-1 py-2 rounded-full border-2 border-[#2A2A2A]  transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#EEE] active:border-[#BABABA] active:bg-[#FFF]' : 'opacity-25'}`}>
+                        <button onClick={() => setOpenTrackList(true)} className={`flex items-center justify-center font-bold w-full p-1 py-2 rounded-full border border-[#FFF] transition-all duration-100 ${!openTrackList ? 'disabled hover:bg-[#FFF]/15 active:border-[#BABABA] active:bg-[#FFF] text-[#FFF]' : 'opacity-25 text-[#FFF]'}`}>
                             +
                         </button>
                     )}
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Title (Single)</span>
+                    <span className='text-[#FFF] opacity-75'>Title (Single)</span>
                     <input type="text" placeholder='Enter title for this Single'
                         value={singleTitle}
-                        onChange={(e) => setSingleTitle(e.target.value)} className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
+                        onChange={(e) => setSingleTitle(e.target.value)} 
+                        className='w-full rounded-[5px] text-[#03f8c5] p-2 border border-[#FFF]/50 focus:border-[#03f8c5] focus:outline-none bg-[#141414]'/>
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Select a license for this track</span>
+                    <span className='text-[#FFF] opacity-75'>Select a license for this track</span>
                     {license.map((lic) => (
                         <div key={lic.id} className='flex'>
                             <label htmlFor={`license_${lic.license}`} className={`${licenseSelected === lic.id ? 'bg-[#EADCA7] border-[#D4B74B] ' : 'bg-[#EEE] border-[#BBB] hover:border-[#D4B74B]'} flex w-full items-center justify-between p-2 border border-[#BBB] rounded-[5px] gap-2 cursor-pointer`}>
@@ -159,16 +160,16 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Upload Cover Art (1080x1080)</span>
+                    <span className='text-[#FFF] opacity-75'>Upload Cover Art (1080x1080)</span>
                     {!coverArt ? (
-                        <label htmlFor="cover_art" className='cursor-pointer w-full flex items-center justify-center border-dashed border-2 border-[#CCC] py-5 rounded-[5px] hover:bg-[#EEE] active:bg-[#FFF]'>
+                        <label htmlFor="cover_art" className='cursor-pointer w-full flex items-center justify-center border-dashed border-2 border-[#CCC] py-5 rounded-[5px] bg-[#FFF]/15 active:bg-[#EADCA7]'>
                             <img src="/src/assets/icons/image.png" alt="image logo" className='size-12' />
                             <input onChange={handlePreviewCoverArt} type="file" id="cover_art" accept='image/png, image/jpeg' hidden/>
                         </label>
                     ) : (
                         <div className='flex items-center justify-center w-full p-2'>
                             <div className='relative flex items-start justify-start w-[300px] h-[300px] rounded-[5px] overflow-hidden'>
-                                <button onClick={() => setCoverArt(null)} className='absolute top-2 right-2 text-[14px] text-[#141414] bg-[#EEE] rounded-[10px] px-3 py-1  active:bg-[#CCC] flex items-center justify-center'>Change Image</button>
+                                <button onClick={() => setCoverArt(null)} className='absolute top-2 right-2 text-[14px] text-[#141414] bg-[#EEE] rounded-[10px] px-3 py-1  active:bg-[#EADCA7] flex items-center justify-center'>Change Image</button>
                                 <img src={coverArt} alt="" className='w-full h-full object-cover'/>
                             </div>
                         </div>
@@ -176,22 +177,23 @@ const CreateSingle = ({ isTrackListOpen, audio_id, typeSelected }) => {
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Set a price for this track</span>
+                    <span className='text-[#FFF] opacity-75'>Set a price for this track</span>
                     <div className='flex w-full gap-2 items-center'>
-                        <span className='font-bold text-[18px]'>₱</span>
+                        <span className='font-bold text-[#FFF] text-[18px]'>₱</span>
                         <input type="text" 
                         value={price}
-                        onChange={(e) => setPrice(Number(e.target.value))} className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
+                        onChange={(e) => setPrice(Number(e.target.value))} 
+                        className={`${price === 0 || !price ? 'text-[#FFF]' : 'text-[#03f8c5]'} w-full rounded-[5px] p-2 border border-[#FFF]/50 focus:border-[#03f8c5] focus:outline-none bg-[#141414]`}/>
                     </div>
                 </div> 
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Set a release date</span>
+                    <span className='text-[#FFF] opacity-75'>Set a release date</span>
                     <div className='flex w-full gap-2 items-center'>
                         <input type="date" id='release_date' name='release_date' 
                         min={new Date().toISOString().split('T')[0]}
                         value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)}
-                        className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none' />
+                        className='w-full rounded-[5px] text-[#03f8c5] p-2 border border-[#FFF]/50 focus:border-[#03f8c5] focus:outline-none bg-[#141414]' />
                     </div>
                 </div>
 

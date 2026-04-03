@@ -42,32 +42,31 @@ const CatalogSingles = () => {
     }
 
     return (
-        <div className='relative flex flex-col min-h-screen w-full bg-[#FFF]'>
+        <div className='relative flex flex-col min-h-screen w-full'>
             <TopNav />
-            <div className='relative grid grid-cols-[15%_85%] w-full bg-[#FFF]'>
+            <div className='relative grid grid-cols-[15%_85%] w-full'>
                 <SideNav />
 
-                <div className='flex flex-col justify-start w-full p-5 bg-[#FFF]'>
-                    <span className='text-[28px] font-bold text-[#141414]'>Singles</span>
+                <div className='flex flex-col justify-start w-full p-5 bg-[#141414]'>
+                    <span className='text-[28px] font-bold text-[#FFF]'>Singles</span>
 
-                    <div className='flex flex-col w-full h-auto pt-[1rem] gap-2'>
-                        <div className='grid grid-cols-[5%_10%_20%_10%_10%_10%_15%_10%_10%] place-items-start w-full h-[25px] border-b border-[#6A6A6A]'>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Track id</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Duration</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Track Name</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Album Type</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Date Created</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Date Updated</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Release Date</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Price</div>
-                            <div className='flex items-center w-full text-[14px] opacity-50'>Status</div>
+                    <div className='flex flex-col w-full h-auto pt-[1rem]'>
+                        <div className='grid grid-cols-[5%_10%_25%_15%_10%_15%_10%_10%] place-items-start w-full h-[25px] border-b border-[#6A6A6A]'>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Track id</div>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Duration</div>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Track Name</div>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Date Created</div>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Date Updated</div>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Release Date</div>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Price</div>
+                            <div className='flex items-center w-full text-[14px] text-[#FFF] opacity-50'>Status</div>
                         </div>
 
                         <div className='flex flex-col w-full'>
                             {singleTracks.map((audio) => (
-                                <div key={audio.album_id} className='grid grid-cols-[5%_10%_20%_10%_10%_10%_15%_10%_10%] place-items-center w-full h-[40px] border-b border-[#CCC] hover:bg-[#EEE]'>
-                                    <div className='flex items-center w-full text-[14px]'>{audio.album_id}</div>
-                                    <div className='flex items-center w-full text-[14px]'>{formatTime(audio.duration)}</div>
+                                <div key={audio.album_id} className='grid grid-cols-[5%_10%_25%_15%_10%_15%_10%_10%] place-items-center w-full h-[40px] border-b border-[#CCC]/25 hover:bg-[#FFF]/10'>
+                                    <div className='flex items-center w-full text-[#FFF] text-[14px]'>{audio.album_id}</div>
+                                    <div className='flex items-center w-full text-[#FFF] text-[14px]'>{formatTime(audio.duration)}</div>
                                     <div className='flex gap-2 items-center w-full text-[14px]'>
                                         <button onClick={() => toggleAudioPlay(audio.album_id) }>{
                                         playingId === audio.album_id ? (
@@ -76,18 +75,17 @@ const CatalogSingles = () => {
                                             <img src="/src/assets/icons/play_black.png" alt="pause" className='w-[20px] h-[20px] opacity-75'/>
                                         )
                                     }</button>
-                                        <span className='w-[200px] truncate'>{audio.title}</span>
+                                        <span className='w-[200px] truncate text-[#FFF]'>{audio.title}</span>
                                         <audio ref={(aud) => {audioRef.current[audio.album_id] = aud}} src={audio.audio_tagged_url} controls hidden></audio>
                                     </div>
-                                    <div className='flex items-center w-full text-[14px]'>{audio.album_type}</div>
-                                    <div className='flex items-center w-full text-[14px]'>{new Date(audio.date_created).toLocaleDateString()}</div>
-                                    <div className='flex items-center w-full text-[14px]'>{new Date(audio.date_updated).toLocaleDateString()}</div>
-                                    <div className='flex items-center w-full text-[14px]'>{new Date(audio.release_date).toLocaleDateString()}</div>
-                                    <div className='flex items-center w-full text-[14px]'>{new Intl.NumberFormat('en-PH', {
+                                    <div className='flex items-center w-full text-[14px] text-[#FFF]'>{new Date(audio.date_created).toLocaleDateString()}</div>
+                                    <div className='flex items-center w-full text-[14px] text-[#FFF]'>{new Date(audio.date_updated).toLocaleDateString()}</div>
+                                    <div className='flex items-center w-full text-[14px] text-[#FFF]'>{new Date(audio.release_date).toLocaleDateString()}</div>
+                                    <div className='flex items-center w-full text-[14px] text-[#FFF]'>{new Intl.NumberFormat('en-PH', {
                                         style: 'currency',
                                         currency: 'php'
                                     }).format(audio.price)}</div>
-                                    <div className='flex items-center w-full text-[14px]'>{audio.status}</div>
+                                    <div className='flex items-center w-full text-[14px] text-[#FFF]'>{audio.status}</div>
                                 </div>
                             ))}
                         </div>

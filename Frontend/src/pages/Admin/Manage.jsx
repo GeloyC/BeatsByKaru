@@ -59,22 +59,22 @@ const Manage = () => {
 
 
   return (
-    <div className='relative flex flex-col w-full min-h-screen bg-[#FFF]'>
+    <div className='relative flex flex-col w-full min-h-screen'>
         <TopNav />
 
         <div className='relative grid grid-cols-[15%_85%] h-full w-full'>
             <SideNav />
 
-            <div className='relative flex w-full h-full bg-[#FFF]'>
+            <div className='relative flex w-full h-full bg-[#141414]'>
 
               {/* CONTENTS HERE */}
               <div className='flex flex-col w-full p-5 gap-5'>
-                <span className='text-[28px] font-bold text-[#141414]'>Manage Contents</span>
+                <span className='text-[28px] font-bold text-[#FFF]'>Manage Contents</span>
 
                 {/* manage genres */}
                 <section className='flex flex-col w-full gap-4'>
                   <div className='flex items-center justify-between gap-4 w-full pt-2 border-t border-t-[#DDD]'>
-                    <span className='font-bold text-[18px] text-[#005F60]'>All Genres</span>
+                    <span className='font-bold text-[18px] text-[#03f8c5]'>All Genres</span>
                     {!isGenreWindowClosed && (
                       <button onClick={handleCloseAddGenreWindow} className='p-1 px-2 bg-[#03f8c5] text-[#005F60] rounded-[#005F60] text-[16px] font-bold rounded-[5px] hover:opacity-75 active:opacity-100'>+ Add Genre</button>
                     )}

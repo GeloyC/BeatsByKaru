@@ -21,16 +21,6 @@ const UnpublishedTracks = ({
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleTrackSelectionChange = (e) => {
-        const value = Number(e.target.value);
-        const checked = e.target.checked;
-
-        onSelectTrack((prev) => 
-            checked
-                ? [...prev, value]
-                : prev.filter((track_id) => track_id !== value)
-        );
-    }
 
     console.log('Checking: ', selectedTrackID)
     console.log('SelectedTracks is an', typeof onSelectTrack);
@@ -39,17 +29,12 @@ const UnpublishedTracks = ({
     return (
         <div className='flex flex-col w-full items-start justify-start gap-2 p-5'>
             <div className='flex w-full items-center justify-between'>
-                <span className='font-bold text-[20px]'>Unpublished Tracks</span>
-
-                {typeSelection !== 'Single' && (
-                    <span className='italic opacity-75 text-[14px]'>Select multiple tracks for Beat Tapes <strong className='text-[#FF0000]'>*</strong></span>
-                )}
-                
+                <span className='font-bold text-[#FFFF] text-[20px]'>Unpublished Tracks</span>
             </div>
 
             <div className='flex flex-col w-full h-full gap-1'>
                 {tracks.map(track => (
-                    <label key={track.id} htmlFor={`audio_${track.id}`} className={`flex items-center justify-start p-2 w-full border gap-2 rounded-[5px] hover:bg-[#EEE] active:bg-[#FFF] ${selectedTrackID === track.id ? 'border-[#007F80] font-bold text-[#007F80]' : 'border-[#CCC]'}`}>
+                    <label key={track.id} htmlFor={`audio_${track.id}`} className={`flex items-center justify-start p-2 w-full border gap-2 rounded-[5px] hover:bg-[#FFF]/15 active:bg-[#FFF]/50 ${selectedTrackID === track.id ? 'border-[#03f8c5] font-bold text-[#03f8c5]' : 'text-[#FFF] border-[#FFF]'}`}>
 
                         <input hidden onChange={() => {onSelectTrack(track.id)}}
                             checked={selectedTrackID === track.id} 

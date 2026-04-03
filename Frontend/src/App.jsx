@@ -15,6 +15,7 @@ import Login from './pages/Admin/Login.jsx'
 import EditGenre from './components/AdminComponent/EditGenre.jsx'
 import CatalogSingles from './pages/Admin/CatalogSingles.jsx'
 import CatalogBeatTapes from './pages/Admin/CatalogBeatTapes.jsx'
+import BeatTapeTracks from './pages/Admin/BeatTapeTracks.jsx'
 
 function App() {
   
@@ -36,6 +37,7 @@ function App() {
         <Route path='create' element={ user ? <Create /> : <Navigate to='/admin'/>}/>
         <Route path='catalog/singles' element={ user ? <CatalogSingles /> : <Navigate to='/admin' /> }/>
         <Route path='catalog/beat-tapes' element={ user ? <CatalogBeatTapes /> : <Navigate to='/admin' /> }/>
+        <Route path='catalog/beat-tapes/:id/tracks' element={ user ? <BeatTapeTracks /> : <Navigate to="/admin" /> } />
     </Routes>
   )
 }

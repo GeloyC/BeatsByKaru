@@ -28,7 +28,7 @@ export function useBeatTapes() {
         queryKey: ['beat-tape'],
         queryFn: async () => {
             try {
-                const response = await axios.get(`${base_url}/audio/beat-tapes`, {
+                const response = await axios.get(`${base_url}/audio/beat_tapes`, {
                     withCredentials: true
                 })
 
@@ -40,6 +40,30 @@ export function useBeatTapes() {
         }
 
     });
+}
+
+export function useBeatTapeTracks(id) {
+    return useQuery({
+        queryKey: ['beat-tape-tracks', Number(id)],
+        queryFn: async () => {
+            try {
+
+                if (!id || isNaN(id)) {
+                    throw new Error('Valid beat tape ID is required');
+                }
+
+                const response = await axios.get(`${base_url}/audio/beat_tape/${id}/tracks`, {
+                    withCredentials: true
+                });
+
+                console.log('data on beattape: ', response?.data);
+                return response?.data ?? [];
+                
+            } catch (err) {
+                console.error('Failed to retreive beat tape tracks: ', err);
+            }
+        } 
+    })
 }
 
 // To use for uploading Singles Track
@@ -73,7 +97,7 @@ export function useSingleAvailable() {
         queryKey: ['SingleAvailable'],
         queryFn: async () => {
             try {
-                const response = await axios.get(`${base_url}/audio/single/list/available`, { withCredentials: true });
+                const response = await axios.get(`${base_url}/audio/single/available`, { withCredentials: true });
 
                 if (!response.data) {
                     throw new Error('No audios returned');
@@ -99,3 +123,6 @@ export async function selectedTrackSingle(audio_id) {
 
     return response.data;
 }
+
+
+

@@ -20,11 +20,10 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
     const [beatTapeSelection, setBeatTapeSelection] = useState([]);
     const [releaseDate, setReleaseDate] = useState('')
     const [beatTapeTitle, setBeatTapeTitle] = useState('');
-    const [price, setPrice] = useState('');
+    const [price, setPrice] = useState(0);
     
     // Data
     const { data: singleTracks = [] } = useSingleAvailable();
-    const { data: license = [] } = useLicense();
 
     const handlePreviewCoverArt = (e) => {
         const imageFile = e.target.files[0];
@@ -58,7 +57,6 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
         setSelectedTrackId(prev => prev.filter(track => track !== id)); // removes from the unpublishedTracks selected tracks
     }
 
-    const totalPrice = beatTapeSelection.reduce((sum, track) => sum + track.price, 0);
 
     const moveTrackOrder = (arr, from, to) => {
         const arrCopy = [...arr];
@@ -101,7 +99,7 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
         mutationKey: ['beat_tape'],
         mutationFn: async (payload) => {
             try {
-                const response = await axios.post(`${base_url}/audio/beat_tape/upload`, payload, { withCredentials: true });
+                const response = await axios.post(`${base_url}/audio/beat_tape`, payload, { withCredentials: true });
                 console.log('Beat Tape upload reponse: ', response);
                 return response.data;
             } catch(err) {
@@ -114,7 +112,7 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
         <div className='grid grid-cols-2 w-full'>
             <div className='flex flex-col w-full gap-5'>
                 <div className='flex flex-col items-start w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Select the tracks for your Beat Tape</span>
+                    <span className='text-[#FFF] opacity-75'>Select the tracks for your Beat Tape</span>
 
                     <div className='flex flex-col items-center justify-start w-full p-2 rounded-[10px] border-2 border-dashed border-[#BABABA] gap-1 border-box'>
 
@@ -160,13 +158,13 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E]/75'>Beat Tape Title</span>
+                    <span className='text-[#FFF]/75'>Beat Tape Title</span>
                     <input type="text" id="beat_tape_title" placeholder='Enter the title for this Beat Tape here...' value={beatTapeTitle} onChange={(e) => setBeatTapeTitle(e.target.value)}
-                    className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
+                    className='w-full rounded-[5px] text-[#03f8c5] p-2 border border-[#FFF]/50 focus:border-[#03f8c5] focus:outline-none bg-[#141414]'/>
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Upload Cover Art (1080x1080)</span>
+                    <span className='text-[#FFF] opacity-75'>Upload Cover Art (1080x1080)</span>
                     {!coverArt ? (
                         <label htmlFor="cover_art" className='cursor-pointer w-full flex items-center justify-center border-dashed border-2 border-[#CCC] py-5 rounded-[5px] hover:bg-[#EEE] active:bg-[#FFF]'>
                             <img src="/src/assets/icons/image.png" alt="image logo" className='size-12' />
@@ -183,20 +181,20 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
                 </div>
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Price</span>
+                    <span className='text-[#FFF] opacity-75'>Price</span>
 
                     <input type="text" placeholder={`Set a price for "${beatTapeTitle || '[Beat Tape Title]'}"`}
-                    value={price} onChange={(e) => setPrice(e.target.value)}
-                    className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none'/>
+                    value={price} onChange={(e) => setPrice(Number(e.target.value))}
+                    className={`${price === 0 || !price ? 'text-[#FFF]' : 'text-[#03f8c5]'} w-full rounded-[5px] p-2 border border-[#FFF]/50 focus:border-[#03f8c5] focus:outline-none bg-[#141414]`}/>
                 </div>  
 
                 <div className='flex flex-col w-full gap-2'>
-                    <span className='font-bold text-[#1E1E1E] opacity-75'>Set a release date</span>
+                    <span className='text-[#FFF] opacity-75'>Set a release date</span>
                     <div className='flex w-full gap-2 items-center'>
                         <input type="date" id='release_date' name='release_date' 
                         min={new Date().toISOString().split('T')[0]}
                         value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)}
-                        className='flex w-full p-2 border border-[#BABABA] rounded-[5px] focus:border-[#2A2A2A] focus:outline-none' />
+                        className='w-full rounded-[5px] text-[#03f8c5] p-2 border border-[#FFF]/50 focus:border-[#03f8c5] focus:outline-none bg-[#141414]' />
                     </div>
                 </div>
 
@@ -208,6 +206,7 @@ const CreateBeatTape = ({ isTrackListOpen, audio_id, typeSelected }) => {
             {openTrackList && (
                 <SingleTracks 
                     tracks={singleTracks}
+                    openTrackList={() => setOpenTrackList(prev => !prev)}
                     selectedTrackID={selectedTrackId}
                     onSelectTrack={setSelectedTrackId}
                     fetchTracks={fetchMultipleTrack}
