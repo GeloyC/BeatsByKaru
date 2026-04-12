@@ -99,6 +99,49 @@ audio.post('/upload-track', requireAdmin,
     }
 })
 
+audio.post('/beat_tape', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]), async (req, res, next) => {
+    try {
+        const { audio_id, title, release_date, price } = req.body;
+        const audioId = JSON.parse(audio_id);
+        const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
+
+
+        // transaction
+        const result = await db.tx( async tran => {
+            const album = await tran.one(`
+                INSERT INTO album ( title, album_type, cover_art_url, release_date, price ) VALUES ($1, 'beat_tape', $2, $3, $4) 
+                RETURNING id
+            `, [ title, cover_art_url, release_date, price ]);
+
+            const album_audio = await tran.any(`
+                INSERT INTO album_audio (album_id, audio_id, track_number)
+                SELECT
+                    $1,
+                    x.audio_id,
+                    x.track_number
+                FROM unnest($2::int[]) WITH ORDINALITY AS x(audio_id, track_number)
+                RETURNING album_id, audio_id, track_number
+            `, [album.id, audioId]);
+
+            if(!album_audio) throw new Error('album_audio error:');
+
+            return {
+                album,
+                tracks: album_audio
+            };
+        });
+
+        return res.json({
+            sucess: true,
+            data: result
+        });
+
+    } catch (err) {
+        console.error('Beat tape error: ', err);
+        next(err);
+    }
+});
+
 
 // Upload a single
 // Used in CreateSingle.jsx
@@ -307,7 +350,9 @@ audio.get('/beat_tape/:id/tracks', requireAdmin, async (req, res) => {
                 al_single.title,
                 al_bt.cover_art_url,
                 a.audio_tagged_url,
-                al_single.release_date
+                a.duration,
+                al_single.release_date,
+                aa_bt.track_number
 
             FROM album al_bt
             JOIN album_audio aa_bt ON aa_bt.album_id = al_bt.id
@@ -318,7 +363,8 @@ audio.get('/beat_tape/:id/tracks', requireAdmin, async (req, res) => {
 
             WHERE al_bt.id = $1
             AND al_bt.album_type = 'beat_tape'
-            AND al_single.album_type = 'single';
+            AND al_single.album_type = 'single'
+            ORDER BY aa_bt.track_number ASC;
         `, [ id ]);
 
         return res.status(200).json(response);
@@ -327,6 +373,29 @@ audio.get('/beat_tape/:id/tracks', requireAdmin, async (req, res) => {
         console.error('Error retrieving beat_tapes: ', err);
     }
 })
+
+audio.get('/beat_tape/:id/cover_art', requireAdmin, async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        if (!id) {
+            return res.send({
+                message: 'Id is required',
+                success: false
+            });
+        }
+
+        const response = await db.any(
+            `SELECT cover_art_url 
+            FROM album WHERE album_type = 'beat_tape'
+            AND id = $1`
+        , [ id ]);
+
+        return res.status(200).json(response)
+    } catch (err) {
+        console.error('Error retrieving image: ', err)
+    }
+});
 
 
 
@@ -436,48 +505,7 @@ audio.get('/beat_tape/:id', async (req, res) => {
 });
 
 
-audio.post('/beat_tape', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]), async (req, res, next) => {
-    try {
-        const { audio_id, title, release_date, price } = req.body;
-        const audioId = JSON.parse(audio_id);
-        const cover_art_url = `${req.protocol}://${req.get("host")}/audio-uploads/${req.files.cover_art[0].filename}`;
 
-
-        // transaction
-        const result = await db.tx( async tran => {
-            const album = await tran.one(`
-                INSERT INTO album ( title, album_type, cover_art_url, release_date, price ) VALUES ($1, 'beat_tape', $2, $3, $4) 
-                RETURNING id
-            `, [ title, cover_art_url, release_date, price ]);
-
-            const album_audio = await tran.any(`
-                INSERT INTO album_audio (album_id, audio_id, track_number)
-                SELECT
-                    $1,
-                    x.audio_id,
-                    x.track_number
-                FROM unnest($2::int[]) WITH ORDINALITY AS x(audio_id, track_number)
-                RETURNING album_id, audio_id, track_number
-            `, [album.id, audioId]);
-
-            if(!album_audio) throw new Error('album_audio error:');
-
-            return {
-                album,
-                tracks: album_audio
-            };
-        });
-
-        return res.json({
-            sucess: true,
-            data: result
-        });
-
-    } catch (err) {
-        console.error('Beat tape error: ', err);
-        next(err);
-    }
-});
 
 
 

@@ -64,6 +64,29 @@ export function useBeatTapeTracks(id) {
             }
         } 
     })
+};
+
+export function useBeatTapeCoverArt(id) {
+    return useQuery({
+        queryKey: ['beat-tape-cover-art', Number(id)],
+        queryFn: async () => {
+            try {
+                if (!id) {
+                    throw new Error('Id is required!');
+                }
+
+                const response = await axios.get(`${base_url}/audio/beat_tape/${id}/cover_art`, {
+                    withCredentials: true
+                });
+
+                console.log('Cover_art for beat_tape: ', response?.data);
+                return response?.data ?? [];
+
+            } catch (err) {
+                onsole.error('Failed to retreive beat tape cover_art: ', err);
+            }
+        }
+    })
 }
 
 // To use for uploading Singles Track
