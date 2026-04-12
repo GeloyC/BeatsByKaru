@@ -22,8 +22,11 @@ const BeatTapeTracks = () => {
             <div className='relative grid grid-cols-[15%_85%] w-full'>
                 <SideNav />
 
-                <div>{tracks.map(track => (
-                    <span key={track.single_album_id}>{track.title}</span>
+                <div className='flex flex-col'>{tracks.map(track => (
+                    <>
+                        <span key={track.single_album_id} className='text-[#FFF]'>{track.title}</span>
+                        <img src={track.cover_art_url} alt="" />
+                    </>
                 ))}</div>
             </div>
         </div>

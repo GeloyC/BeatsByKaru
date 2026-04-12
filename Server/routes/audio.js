@@ -267,7 +267,20 @@ audio.get('/singles', async (req, res, next) => {
 audio.get('/beat_tapes', requireAdmin, async (req, res) => {
     try {
         const result = await db.any(`
-            SELECT * FROM album WHERE album_type = 'beat_tape';
+            SELECT 
+                bt.id,
+                bt.title,
+                bt.album_type,
+                bt.release_date,
+                bt.cover_art_url,
+                bt.price,
+                COUNT(aa.audio_id) AS number_of_tracks
+            FROM album bt
+            LEFT JOIN album_audio aa 
+                ON bt.id = aa.album_id
+            WHERE bt.album_type = 'beat_tape'
+            GROUP BY bt.id, bt.title, bt.album_type, bt.release_date, bt.cover_art_url, bt.price
+            ORDER BY number_of_tracks DESC, bt.release_date DESC;
         `);
 
         if (!result) {
@@ -292,7 +305,7 @@ audio.get('/beat_tape/:id/tracks', requireAdmin, async (req, res) => {
             SELECT DISTINCT
                 al_single.id AS single_album_id,
                 al_single.title,
-                al_single.cover_art_url,
+                al_bt.cover_art_url,
                 a.audio_tagged_url,
                 al_single.release_date
 
@@ -403,24 +416,24 @@ audio.get('/single/available', requireAdmin, async(req, res, next) => {
 });
 
 
-// audio.get('/beat_tape/:id', async (req, res) => {
-//     try {
-//         const { id } = req.params;
+audio.get('/beat_tape/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
 
-//         const track = await db.one(`
-//             SELECT * FROM audio WHERE id = $1;
-//         `, [id]);
+        const track = await db.one(`
+            SELECT * FROM audio WHERE id = $1;
+        `, [id]);
 
-//         console.log('Selected: ', track.id);
-//         return res.json({
-//             ...track,
-//             track_id: track.id
-//         })
+        console.log('Selected: ', track.id);
+        return res.json({
+            ...track,
+            track_id: track.id
+        })
 
-//     } catch(err) {
-//         console.log('Error on this motherfucking bitch: ', err);
-//     }
-// });
+    } catch(err) {
+        console.log('Error on this motherfucking bitch: ', err);
+    }
+});
 
 
 audio.post('/beat_tape', requireAdmin, upload.fields([{name: 'cover_art', maxCount: 1}]), async (req, res, next) => {
